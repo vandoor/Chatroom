@@ -1,0 +1,151 @@
+#include<iostream>
+#include<cstdio>
+#include<cstdlib>
+#include<cstring>
+#include<fcntl.h>
+#include<pthread.h>
+#include<sys/socket.h>
+#include<sys/types.h>
+#include<unistd.h>
+#include<set>
+#include<netinet/in.h>
+#include<arpa/inet.h>
+#include "./CJsonObject/CJsonObject.hpp"
+
+const char hvie='\n';
+const int MYPORT = 8848;
+const int BUFFER_SIZE=256;
+
+using namespace std;
+
+
+int sockfd;
+set<int>connList;
+sockaddr_in myAddr;
+int Len;
+void * processConn(void*id){
+	int conn=*(int*)id;
+	char buf[BUFFER_SIZE],buf2[256];
+	while(true)
+	{
+		int ret=recv(conn, buf, BUFFER_SIZE,0);
+		if(ret==0){
+			connList.erase(conn);
+			cout<<"Player "<<conn<<" exited\n";
+			pthread_exit(NULL);
+		}
+		if(ret==-1){
+			connList.erase(conn);
+			cout<<"receive Error!\n";
+			cout<<"Player "<<conn<<" exited with error!\n";
+			pthread_exit(NULL);
+		}
+		for(set<int>::iterator it=connList.begin();it!=connList.end();++it){
+			sprintf(buf2,"%d: ",conn);
+			write(*it, buf2, 256);
+			write(*it, buf, BUFFER_SIZE);
+		}
+	}
+}
+void *ProcessInput(void*id)
+{
+	int cid=*(int*)id, op;
+	char buf[BUFFER_SIZE], buf1[BUFFER_SIZE], buf2[BUFFER_SIZE];
+    char ID[BUFFER_SIZE], ID2[BUFFER_SIZE];
+	while(true)
+	{
+		int ret=recv(cid, buf, BUFFER_SIZE, 0);
+		if(ret<=0){
+			pthread_exit(NULL);
+		}
+		//sscanf(buf, "# %d | %s | %s", &op, buf1, buf2);
+		cout<<buf<<"\n";
+		CJsonObject job(buf);
+		vector<string>Keys;
+		vector<string>Values;
+		while(1){
+			string k,v;
+			int gk=job.GetKey(k);
+			if(!gk) break;
+			if(job.getKey(k,v)){
+				Keys.push_back(k);
+				Values.push_back(v);
+			}
+		}
+
+		switch(op){
+			case 1:{
+				//Register;
+				
+				break;
+			}		   
+			case 2:{
+				//Login;
+				break;
+			}		   
+			case 3:{
+				//Create Group
+				 break;
+			}		   
+			case 4:{
+				//AddFriend or AddToGroup
+				 break;
+			}		   
+			case 5:{
+				//Invite
+				 break;
+			}		   
+			case 6:{
+				//send message
+				 break;
+			}
+			case 7:{
+				//be friend / be 
+				break;
+			}	   
+		}
+	}
+}
+int main(){
+	pthread_t tid;
+	memset(&myAddr,0,sizeof(myAddr));
+	Len=sizeof(myAddr);
+	myAddr.sin_family=AF_INET;
+	myAddr.sin_port=htons(MYPORT);
+	myAddr.sin_addr.s_addr=htonl(INADDR_ANY);
+	
+	sockfd=socket(AF_INET, SOCK_STREAM, 0);
+	if(sockfd==-1)
+	{
+		perror("socket create failed");
+		return-1;
+	}
+	cout<<"socket created\n";
+	int bid=bind(sockfd, (sockaddr*)&myAddr, sizeof(myAddr));
+	if(bid==-1)
+	{
+		perror("bind failed");
+		return-1;
+	}
+	cout<<"bind:"<<bid<<hvie;
+	int lid=listen(sockfd,10);
+	cout<<"lid: "<<lid<<hvie;
+	if(lid==-1)
+	{
+		perror("listen error");
+		return-1;
+	}
+	cout<<"listening, ready to receive"<<hvie;
+	pthread_t t1,t2;
+	while(1){
+		int conn=accept(sockfd,NULL,NULL);
+		connList.insert(conn);
+		cout<<"player "<<conn<<" entered!\n";
+		cout<<"current player(s): "<<connList.size()<<hvie;
+		pthread_create(&t1,NULL, processConn, &conn);
+	}
+
+
+	while(1);
+
+}
