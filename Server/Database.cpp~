@@ -9,7 +9,6 @@ using namespace std;
 
 const int BUFFER_SIZE=256;
 int Database::nRows=0;
-std::vector<int> Database::v=std::vector<int>();
 Database:: Database()
 {
 	srand((unsigned long long)(new char));
@@ -35,12 +34,7 @@ int ADDONE(void*, int, char**, char**){
 }
 int PUSHBACK(void *arg,int nColumn, char** columnValue, char**columnName)
 {
-	int ret=0;
-	for(int i=0;columnValue[0][i];i++){
-		ret=ret*10+(columnValue[0][i]-'0');
-	}
-	Database::v.push_back(ret);
-	return 0;
+	v.push_back(columnValue[0]);
 }
 
 
@@ -65,7 +59,7 @@ int Database:: RandomID(const char* table){
 
 void getTime(char* tms){
 	time_t t=time(0);
-	strftime(tms, 32, "%Y-%m-%d %H:%M%S", localtime(&t));
+	strftime(tms, 32, "%Y-%m-%d", localtime(&t));
 	cout<<"get time: "<<tms<<endl;
 }
 
@@ -103,7 +97,7 @@ int Database::CreateGroup(const char* UserID, const char* GroupName)
 	int GroupID=RandomID("Group_Info");
 	char tms[64];
 	getTime(tms);
-	sprintf(order, "insert into Group_Info values(%d,'%s','0',%s, 1,'%s')",
+	sprintf(order, "insert into Group_Info values(%d,'%s','0',%d,1,'%s')",
 			GroupID, GroupName, UserID, tms);
 	val=sqlite3_exec(handler, order, NULL, NULL, &errormsg);
 	if(val){
@@ -117,22 +111,6 @@ int Database::CreateGroup(const char* UserID, const char* GroupName)
 		return -1;
 	}
 	return GroupID;
-}
-int Database::GetAdmin(const char* GroupID){
-	Database::v.clear();
-	sprintf(order, "select AdminID from Group_info where GroupID=%s", GroupID);
-	printf("%s\n",order);
-	val=sqlite3_exec(handler, order, PUSHBACK, NULL, &errormsg);
-	printf("size=%d,%d,%d",v.size(),v.back(),val);
-	if(val){
-		printf("find admin error! - - %s", errormsg);
-		return -1;
-	}
-	if(!v.size()){
-		printf("did not find admin of %s!", GroupID);
-		return 0;
-	}
-	return v.back();
 }
 int Database::AskFriend(const char* Fid,const char* Tid){
 	char tms[64];
@@ -159,7 +137,7 @@ int Database::Join(const char* UserID, const char* GroupID){
 		printf("didn't find group");
 		return 101;
 	}
-	sprintf(order, "insert into group_request values(%s,%s,'%s')",
+	sprintf(order, "insert into group_request values(%s,%s,%s)",
 			UserID, GroupID, tms);
 	val=sqlite3_exec(handler, order, NULL, NULL, &errormsg);
 	if(val){
@@ -195,7 +173,7 @@ int Database::Invite(const char* Uid, const char* Fid, const char* Gid){
 		printf("didn't find group %s", Gid);
 		return 101;
 	}
-	sprintf(order, "insert into invite_request values (%s,%s,%s,'%s')",
+	sprintf(order, "insert into invite_request values (%s,%s,%s,%s)",
 			Uid, Fid, Gid, tms);
 	val=sqlite3_exec(handler, order, NULL, NULL, &errormsg);
 	if(val){
@@ -210,12 +188,7 @@ int Database::SaveOfflineMSG(const char* SendID, const char* RecvID, const char*
 {
 	char tms[64];
 	getTime(tms);
-	if(tag==0){
-		sprintf(order,"insert into UnreadMessage values (%s,%s,NULL,%d,'%s','%s',%d)",SendID, RecvID,type,tms,content,tag);
-	}
-	else{
-		sprintf(order, "insert into UnreadMessage values (%s,%s,%s,%d,'%s','%s',%d)", SendID, RecvID, GroupID, content, tag);
-	}
+	sprintf(order,"insert into UnreadMessage values (%s,%s,%s,%d,'%s','%s',%d)",SendID,RecvID,GroupID,type,tms,content,tag);
 	val = sqlite3_exec(handler,order,NULL,NULL,&errormsg);
 	if(val)
 	{
@@ -226,11 +199,11 @@ int Database::SaveOfflineMSG(const char* SendID, const char* RecvID, const char*
 }
 
 
-std::vector<int> Database::GetMember(const char* GroupID)
+vector<int> Database::GetMember(const char* GroupID)
 {
-	Database::v.clear();
+	v.clear();
 	sprintf(order,"select UserID from Group_r where GroupID = %s",GroupID);
-	val = sqlite3_exec(handler,order,PUSHBACK,NULL, &errormsg);
+	val = sqlite3_exec(handler,order,PUSHBACK,NULL,errormsg);
 	if(val)
 	{
 		printf("get member error: - - %s",errormsg);

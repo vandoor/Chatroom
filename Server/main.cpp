@@ -40,8 +40,9 @@ int number(const string&s){
 	return ret;
 }
 string to_string(int n){
+	if(n==0)return "0";
 	string s="";
-	while(n) s+=(char)(n%10+'0');
+	while(n) s+=(char)(n%10+'0'), n/=10;
 	reverse(s.begin(),s.end());
 	return s;
 }
@@ -57,6 +58,10 @@ void *ProcessInput(void*id)
 		int rec=recv(cid, buf, BUFFER_SIZE, 0);
 		if(rec<=0){
 			cout<<cid<<' '<<"exit"<<hvie;
+			if(userid[cid]){
+				connect_id.erase(userid[cid]);
+				userid[cid]=0;
+			}
 			pthread_exit(NULL);
 		}
 		//sscanf(buf, "# %d | %s | %s", &op, buf1, buf2);
@@ -64,7 +69,10 @@ void *ProcessInput(void*id)
 		neb::CJsonObject job(buf), ret;
 		string tmp, s1, s2, type;
 		cout<<job.ToString()<<endl;
+		job.Get("type",type);
+		cout<<type<<endl;
 		if(!job.Get("type", type)) continue;
+		cout<<"type: "<<type<<' '<<CODEFOR(type)<<endl;
 		switch(CODEFOR(type)){
 			case 1:{
 				//Register;
@@ -76,13 +84,29 @@ void *ProcessInput(void*id)
 				cout<<UID<<'\n';
 				ret.Add("type", type);
 				ret.Add("status", UID>=0);
-				ret.Add("ID", UID);
+				ret.Add("ID", to_string(UID));
 				break;
 			}		   
 			case 2:{
 				//Login;
+				cout<<"login!\n";
+				job.Get("UserID", s1);
+				job.Get("Password", s2);
+				int result=DB.Login(s1.c_str(),s2.c_str());
+				ret.Add("type", type);
+				if(result==-1){
+					ret.Add("status", 0);
+				}
+				else if(result==0){
+					ret.Add("status", 100);
+				}
+				else{
+					ret.Add("status", 1);
+					userid[cid]=number(s1);
+					connect_id[userid[cid]]=cid;
+				}
 				break;
-			}		   
+			}
 			case 3:{
 				//Create Group
 				cout<<"create group!\n";
@@ -92,7 +116,7 @@ void *ProcessInput(void*id)
 				cout<<"GroupID "<<GroupID<<endl;
 				ret.Add("type", type);
 				ret.Add("status", GroupID>=0);
-				ret.Add("ID", GroupID);
+				ret.Add("ID", to_string(GroupID));
 				break;
 			}
 			case 4:{
@@ -100,18 +124,31 @@ void *ProcessInput(void*id)
 				cout<<"ask to be friend!\n";
 				job.Get("UserID", s1);
 				job.Get("FriendID", s2);
-				int result=DB.AskFriend(s1.c_str(),s2.c_str());
+				int Fid=number(s2);
 				ret.Add("type", type);
-				if(result==100){
-					ret.Add("status", 100);
-					ret.Add("FriendID", s1);
-				}
-				else if(result==-1){
-					ret.Add("status", 0);
+				if(connect_id.count(Fid)){
+					neb::CJsonObject req;
+					req.Add("type","askfriend");
+					req.Add("ReceiverID", s2);
+					req.Add("SenderID", s1);
+					sprintf(buf2, req.ToString().c_str());
+					write(connect_id[Fid], buf2, BUFFER_SIZE);
+					ret.Add("status", 1);
+					ret.Add("FriendID", s2);
 				}
 				else{
-					ret.Add("status", 1);
-					ret.Add("FriendID", s1);
+					int result=DB.AskFriend(s1.c_str(),s2.c_str());
+					if(result==100){
+						ret.Add("status", 100);
+						ret.Add("FriendID", s2);
+					}
+					else if(result==-1){
+						ret.Add("status", 0);
+					}
+					else{
+						ret.Add("status", 1);
+						ret.Add("FriendID", s2);
+					}
 				}
 				break;
 			}		   
@@ -120,19 +157,42 @@ void *ProcessInput(void*id)
 				cout<<"join\n";
 				job.Get("UserID", s1);
 				job.Get("GroupID", s2);
-				int result=DB.Join(s1.c_str(),s2.c_str());
+				int AdminID=DB.GetAdmin(s2.c_str());
 				ret.Add("type", type);
-				if(result==101){
+				if(AdminID==0){
 					ret.Add("status", 101);
-					ret.Add("GroupID", s2);
+					ret.Add("GroupID", s2);	
 				}
-				else if(result==-1){
+				else if(AdminID==-1){
 					ret.Add("status", 0);
 				}
-				else{
+				else if(connect_id.count(AdminID)){
+					neb::CJsonObject req;
+					req.Add("type", "askjoin");
+					req.Add("ReceiverID", to_string(AdminID));
+					req.Add("SenderID", s1);
+					sprintf(buf2, req.ToString().c_str());
+					write(connect_id[AdminID], buf2, BUFFER_SIZE);	
+					//-----------------
 					ret.Add("status", 1);
-					ret.Add("FriendID", s1);
+					ret.Add("UserID", s1);
 					ret.Add("GroupID", s2);
+				}
+				else{	
+					int result=DB.Join(s1.c_str(),s2.c_str());
+					ret.Add("type", type);
+					if(result==101){
+						ret.Add("status", 101);
+						ret.Add("GroupID", s2);
+					}
+					else if(result==-1){
+						ret.Add("status", 0);
+					}
+					else{
+						ret.Add("status", 1);
+						ret.Add("UserID", s1);
+						ret.Add("GroupID", s2);
+					}
 				}
 				break;
 			}		   
@@ -141,34 +201,62 @@ void *ProcessInput(void*id)
 				job.Get("UserID", s1);
 				job.Get("FriendID",s2);
 				job.Get("GroupID", tmp);
-				int result=DB.Invite(s1.c_str(),s2.c_str(),tmp.c_str());
+				int Fid=number(s2);
 				ret.Add("type", type);
-				if(result==100){
-					ret.Add("status",100);
-					ret.Add("FriendID", s1);
-				}
-				else if(result==101){
-					ret.Add("status", 101);
-					ret.Add("GroupID", s2);
-				}
-				else if(result==-1){
-					ret.Add("status", 0);
+				if(connect_id.count(Fid)){
+					int AdminID=DB.GetAdmin(tmp.c_str());
+					if(AdminID==0){
+						ret.Add("status", 101);
+						ret.Add("GroupID", s2);
+					}
+					else if(AdminID==-1){
+						ret.Add("status", 0);
+					}
+					else{
+						neb::CJsonObject req;
+						req.Add("type", "askinvite");
+						req.Add("Receiver", s2);
+						req.Add("Sender", s1);
+						req.Add("GroupID", tmp);
+						sprintf(buf2, req.ToString().c_str());
+						write(connect_id[Fid], buf2, BUFFER_SIZE);
+					//------------------------
+						ret.Add("status",1);
+						ret.Add("FriendID", s2);
+						ret.Add("GroupID", tmp);
+					}
 				}
 				else{
-					ret.Add("status", 1);
-					ret.Add("FriendID", s1);
-					ret.Add("GroupID", s2);
+					int result=DB.Invite(s1.c_str(),s2.c_str(),tmp.c_str());
+					if(result==100){
+						ret.Add("status",100);
+						ret.Add("FriendID", s2);
+					}
+					else if(result==101){
+						ret.Add("status", 101);
+						ret.Add("GroupID", tmp);
+					}
+					else if(result==-1){
+						ret.Add("status", 0);
+					}
+					else{
+						ret.Add("status", 1);
+						ret.Add("FriendID", s2);
+						ret.Add("GroupID", tmp);
+					}
 				}
 				break;
 			}
 			case 7:{
-				//sent to friend
+				//send to friend
 				cout<<"send to friend\n";
 				job.Get("UserID", s1);
 				job.Get("FriendID",s2);
 				job.Get("Message",tmp);
 				//process online message
 				int Fid=number(s2);
+				bool ok=1;
+				ret.Add("type", type);
 				if(connect_id.count(Fid)){
 					//directly send
 					int connID=connect_id[Fid];
@@ -181,9 +269,11 @@ void *ProcessInput(void*id)
 					write(connID, buf2, BUFFER_SIZE);
 				}
 				else{
-					DB.SaveOfflineMSG(s1.c_str(), s2.c_str(), NULL,
-						   	tmp.c_str(), 0);
+					int result=DB.SaveOfflineMSG(s1.c_str(), s2.c_str(), NULL,
+						   	tmp.c_str(), 1, 0);
+					if(result==-1) ok=0;
 				}
+				ret.Add("status", ok);
 				break;
 			}
 			case 8:{
@@ -199,7 +289,7 @@ void *ProcessInput(void*id)
 						sprintf(buf2, "%s", tmp.c_str());
 						neb::CJsonObject mess;
 						mess.Add("type", "receivegroup");
-						mess.Add("Group", "GroupID");
+						mess.Add("GroupID", s2);
 						mess.Add("SenderID", s1);
 						mess.Add("Message", tmp);
 						sprintf(buf2, mess.ToString().c_str());
@@ -207,7 +297,7 @@ void *ProcessInput(void*id)
 					}
 					else{
 						DB.SaveOfflineMSG(s1.c_str(), to_string(Fid).c_str(), s2.c_str(),
-							   	tmp.c_str(), 1);
+							   	tmp.c_str(), 1 , 1);
 					}
 				}
 				break;
@@ -217,12 +307,14 @@ void *ProcessInput(void*id)
 				
 			}
 		}
+		cout<<"wow: "<<ret.ToString()<<endl;
 		sprintf(buf, ret.ToString().c_str());
 		write(cid, buf, BUFFER_SIZE);
 	}
 }
 int main(){
 	code["register"]=1;
+	code["login"]=2;
 	code["creategroup"]=3;
 	code["befriend"]=4;
 	code["join"]=5;
