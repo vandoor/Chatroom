@@ -33,6 +33,12 @@ int ADDONE(void*, int, char**, char**){
 	return 0;
 }
 
+int PUSHBACK(void *arg,int nColumn, char** columnValue, char**columnName)
+{
+	v.push_back(columnValue[0]);
+}
+
+
 int Database:: RandomID(const char* table){
 	int ID=rand();
 	char order[BUFFER_SIZE];
@@ -50,6 +56,8 @@ int Database:: RandomID(const char* table){
 	}
 	return ID;
 }
+
+
 
 void getTime(char* tms){
 	time_t t=time(0);
@@ -164,10 +172,31 @@ int Database::Invite(const char* Uid, const char* Fid, const char* Gid){
 }
 
 int Database::SaveOfflineMSG(const char* SendID, const char* RecvID, const char* GroupID,
-	   	const char* content, int type){
+	   	const char* content, int type,int tag)
+{
+	char tms[64];
+	getTime(tms);
+	sprintf(order,"insert into UnreadOffLineMessage values (%s,%s,%s,%d,%s,%s,%d)",SendID,RecvID,GroupID,type,tms,content,tag);
+	val = sqlite3_exec(handler,order,NULL,NULL,&errormsg);
+	if(val)
+	{
+		printf("offline message save error: - - %s",errormsg);
+		return -1;
+	}
 	return 1;
 }
-vector<int> Database::GetMember(const char* GroupID){
-	vector<int>v;
+
+
+
+
+vector<int> Database::GetMember(const char* GroupID)
+{
+	v.clear();
+	sprintf(order,"select UserID from GroupUser where GroupID = %s",GroupID);
+	val = sqlite3_exec(handler,order,PUSHBACK,NULL,errormsg);
+	if(val)
+	{
+		printf("get member error: - - %s",errormsg);
+	}
 	return v;
 }
