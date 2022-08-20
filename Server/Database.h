@@ -8,12 +8,13 @@ public:
     Database();
     ~Database();
 	static int nRows;
+    static vector<int>v;
     int Register(const char *,const char *);
 	int CreateGroup(const char*,const char*);	
 	int AskFriend(const char*,const char*);
 	int Join(const char*,const char*);
 	int Invite(const char*,const char*,const char*);
-	int SaveOfflineMSG(const char*, const char*, const char*, const char*, int);
+	int SaveOfflineMSG(const char*, const char*, const char*, const char*, int,int);
 	std::vector<int> GetMember(const char*);
 private:
     sqlite3 * handler;//句柄
@@ -23,3 +24,4 @@ private:
 	int RandomID(const char*);
 	int Count(const char*,const char*, const char*);
 };
+
