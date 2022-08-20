@@ -26,8 +26,24 @@ set<int>connList;
 sockaddr_in myAddr;
 int Len;
 map<string,int>code;
+int userid[BUFFER_SIZE];
+map<int,int> connect_id;
+
 int CODEFOR(const string&s){
 	return code[s];
+}
+int number(const string&s){
+	int ret=0;
+	for(int i=0;i<s.length();i++){
+		ret=ret*10+(s[i]-'0');
+	}
+	return ret;
+}
+string to_string(int n){
+	string s="";
+	while(n) s+=(char)(n%10+'0');
+	reverse(s.begin(),s.end());
+	return s;
 }
 void *ProcessInput(void*id)
 {
@@ -106,6 +122,27 @@ void *ProcessInput(void*id)
 				job.Get("GroupID", s2);
 				int result=DB.Join(s1.c_str(),s2.c_str());
 				ret.Add("type", type);
+				if(result==101){
+					ret.Add("status", 101);
+					ret.Add("GroupID", s2);
+				}
+				else if(result==-1){
+					ret.Add("status", 0);
+				}
+				else{
+					ret.Add("status", 1);
+					ret.Add("FriendID", s1);
+					ret.Add("GroupID", s2);
+				}
+				break;
+			}		   
+			case 6:{
+				cout<<"invite\n";
+				job.Get("UserID", s1);
+				job.Get("FriendID",s2);
+				job.Get("GroupID", tmp);
+				int result=DB.Invite(s1.c_str(),s2.c_str(),tmp.c_str());
+				ret.Add("type", type);
 				if(result==100){
 					ret.Add("status",100);
 					ret.Add("FriendID", s1);
@@ -123,17 +160,62 @@ void *ProcessInput(void*id)
 					ret.Add("GroupID", s2);
 				}
 				break;
-			}		   
-			case 6:{
-				break;
 			}
 			case 7:{
+				//sent to friend
+				cout<<"send to friend\n";
+				job.Get("UserID", s1);
+				job.Get("FriendID",s2);
+				job.Get("Message",tmp);
+				//process online message
+				int Fid=number(s2);
+				if(connect_id.count(Fid)){
+					//directly send
+					int connID=connect_id[Fid];
+					sprintf(buf2, "%s", tmp.c_str());
+					neb::CJsonObject mess;
+					mess.Add("type", "receivefriend");
+					mess.Add("SenderID", s1);
+					mess.Add("Message", tmp);
+					sprintf(buf2, mess.ToString().c_str());
+					write(connID, buf2, BUFFER_SIZE);
+				}
+				else{
+					DB.SaveOfflineMSG(s1.c_str(), s2.c_str(), NULL,
+						   	tmp.c_str(), 0);
+				}
+				break;
+			}
+			case 8:{
+				cout<<"send to group\n";
+				job.Get("UserID", s1);
+				job.Get("GroupID", s2);
+				job.Get("Message", tmp);
+				vector<int>memberID=DB.GetMember(s2.c_str());
+				for(int i=0,cnt=memberID.size();i<cnt;i++){
+					int Fid=memberID[i];
+					if(connect_id.count(Fid)){
+						int connID=connect_id[Fid];
+						sprintf(buf2, "%s", tmp.c_str());
+						neb::CJsonObject mess;
+						mess.Add("type", "receivegroup");
+						mess.Add("Group", "GroupID");
+						mess.Add("SenderID", s1);
+						mess.Add("Message", tmp);
+						sprintf(buf2, mess.ToString().c_str());
+						write(connID, buf2, BUFFER_SIZE);
+					}
+					else{
+						DB.SaveOfflineMSG(s1.c_str(), to_string(Fid).c_str(), s2.c_str(),
+							   	tmp.c_str(), 1);
+					}
+				}
 				break;
 			}
 			default:{
 				cout<<"unkwown"<<hvie;
 				
-			}		
+			}
 		}
 		sprintf(buf, ret.ToString().c_str());
 		write(cid, buf, BUFFER_SIZE);
@@ -145,6 +227,8 @@ int main(){
 	code["befriend"]=4;
 	code["join"]=5;
 	code["invite"]=6;
+	code["sendfriend"]=7;
+	code["sendgroup"]=8;
 	
 	pthread_t tid;
 	memset(&myAddr,0,sizeof(myAddr));

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <sqlite3.h>
+#include <vector>
 
 class Database
 {
@@ -12,6 +13,8 @@ public:
 	int AskFriend(const char*,const char*);
 	int Join(const char*,const char*);
 	int Invite(const char*,const char*,const char*);
+	int SaveOfflineMSG(const char*, const char*, const char*, const char*, int);
+	std::vector<int> GetMember(const char*);
 private:
     sqlite3 * handler;//句柄
 	char * order;

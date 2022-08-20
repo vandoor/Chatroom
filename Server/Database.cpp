@@ -42,7 +42,7 @@ int Database:: RandomID(const char* table){
 		(ID*=rand())&=0x7fffffff;
 		sprintf(order, "select * from %s where userid=%d", table, ID);
 		Database::nRows=0;
-		int vals=sqlite3_exec(handler, order, ADDONE, NULL, &errormsg);
+		val=sqlite3_exec(handler, order, ADDONE, NULL, &errormsg);
 		if(val){
 			printf("error :%s\n", errormsg);
 		}
@@ -161,4 +161,13 @@ int Database::Invite(const char* Uid, const char* Fid, const char* Gid){
 		return -1;
 	}
 	return 1;
+}
+
+int Database::SaveOfflineMSG(const char* SendID, const char* RecvID, const char* GroupID,
+	   	const char* content, int type){
+	return 1;
+}
+vector<int> Database::GetMember(const char* GroupID){
+	vector<int>v;
+	return v;
 }
