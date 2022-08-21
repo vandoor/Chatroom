@@ -1,10 +1,6 @@
 #include <stdio.h>
 #include <sqlite3.h>
 #include <vector>
-#include <string>
-
-using std::string;
-using std::vector;
 
 class Database
 {
@@ -12,19 +8,13 @@ public:
     Database();
     ~Database();
 	static int nRows;
-	static vector<int>v;
-	static string str;
-	static vector<vector<string> > AllResult;
-	int Register(const char *,const char *);
-	int Login(const char*, const char *);
-	std::string GetUsername(const char*);
-	int CreateGroup(const char*,const char*);
-	int GetAdmin(const char*);
-	int AcceptFriend(const char* recv, const char* send);
+    int Register(const char *,const char *);
+	int Login(const char*, const char*);
+	int CreateGroup(const char*,const char*);	
 	int AskFriend(const char*,const char*);
 	int Join(const char*,const char*);
 	int Invite(const char*,const char*,const char*);
-	int SaveOfflineMSG(const char*, const char*, const char*, const char*, int,int);
+	int SaveOfflineMSG(const char*, const char*, const char*, const char*, int);
 	std::vector<int> GetMember(const char*);
 private:
     sqlite3 * handler;//句柄
@@ -34,4 +24,3 @@ private:
 	int RandomID(const char*);
 	int Count(const char*,const char*, const char*);
 };
-
