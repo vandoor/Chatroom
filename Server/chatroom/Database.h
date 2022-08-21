@@ -2,9 +2,11 @@
 #include <sqlite3.h>
 #include <vector>
 #include <string>
+#include <map>
 
 using std::string;
 using std::vector;
+using std::map;
 
 class Database
 {
@@ -14,16 +16,22 @@ public:
 	static int nRows;
 	static vector<int>v;
 	static string str;
-	static vector<vector<string> > AllResult;
+	static vector<map<string,string> > AllResult;
 	int Register(const char *,const char *);
 	int Login(const char*, const char *);
-	std::string GetUsername(const char*);
+	string GetUsername(const char*);
+	string GetGroupName(const char*);
+	vector<map<string,string> > GetOfflineRecords(const char*t,const char* u);
+	int DeleteOfflineRecords(const char*t, const char*u);
 	int CreateGroup(const char*,const char*);
 	int GetAdmin(const char*);
 	int AcceptFriend(const char* recv, const char* send);
+	int DeleteFriend(const char* ,const char*);
 	int AskFriend(const char*,const char*);
-	int Join(const char*,const char*);
+	int Join(const char*user, const char*admin,const char*group);
 	int Invite(const char*,const char*,const char*);
+	int EnterGroup(const char*, const char*);
+	int QuitGroup(const char*, const char*);
 	int SaveOfflineMSG(const char*, const char*, const char*, const char*, int,int);
 	std::vector<int> GetMember(const char*);
 private:
