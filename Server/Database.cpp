@@ -9,6 +9,9 @@ using namespace std;
 
 const int BUFFER_SIZE=256;
 int Database::nRows=0;
+vector<int> Database::v=std::vector<int>();
+string Database::str=string();
+vector<vector<string> > Database::AllResult=vector<vector<string> >();
 Database:: Database()
 {
 	srand((unsigned long long)(new char));
@@ -27,16 +30,43 @@ Database:: ~Database(){
 	delete[]errormsg;
 }
 
-
 int ADDONE(void*, int, char**, char**){
 	Database::nRows++;
 	return 0;
 }
-
-int PUSHBACK(void *arg,int nColumn, char** columnValue, char**columnName)
+int PUSHINT(void *arg,int nColumn, char** columnValue, char**columnName)
 {
-	v.push_back(columnValue[0]);
+	int ret=0;
+	for(int i=0;columnValue[0][i];i++){
+		ret=ret*10+(columnValue[0][i]-'0');
+	}
+	Database::v.push_back(ret);
+	return 0;
 }
+int GETLASTSTR(void *,int, char**columnValue, char**columnName)
+{
+	Database::str.clear();
+	for(int i=0;columnValue[0][i];i++){
+		Database::str.push_back(columnValue[0][i]);
+	}
+	return 0;
+}
+
+
+
+int GETALL(void*,int nC, char** colValue, char ** colName)
+{
+	map<string,string> vs;
+	for(int i=0;i<nC;i++)
+	{
+		string name(colName[i]), value(colValue[i]);
+		vs.insert({name,value});
+	}
+	Database::AllResult.push_back(vs);
+	return 0;
+}
+
+
 
 
 int Database:: RandomID(const char* table){
@@ -57,11 +87,9 @@ int Database:: RandomID(const char* table){
 	return ID;
 }
 
-
-
 void getTime(char* tms){
 	time_t t=time(0);
-	strftime(tms, 32, "%Y-%m-%d", localtime(&t));
+	strftime(tms, 32, "%Y-%m-%d %H:%M%S", localtime(&t));
 	cout<<"get time: "<<tms<<endl;
 }
 
@@ -99,7 +127,7 @@ int Database::CreateGroup(const char* UserID, const char* GroupName)
 	int GroupID=RandomID("Group_Info");
 	char tms[64];
 	getTime(tms);
-	sprintf(order, "insert into Group_Info values(%d,'%s','0',%d,1,'%s')",
+	sprintf(order, "insert into Group_Info values(%d,'%s','0',%s, 1,'%s')",
 			GroupID, GroupName, UserID, tms);
 	val=sqlite3_exec(handler, order, NULL, NULL, &errormsg);
 	if(val){
@@ -113,6 +141,22 @@ int Database::CreateGroup(const char* UserID, const char* GroupName)
 		return -1;
 	}
 	return GroupID;
+}
+int Database::GetAdmin(const char* GroupID){
+	Database::v.clear();
+	sprintf(order, "select AdminID from Group_info where GroupID=%s", GroupID);
+	printf("%s\n",order);
+	val=sqlite3_exec(handler, order, PUSHINT, NULL, &errormsg);
+	printf("size=%d,%d,%d",v.size(),v.back(),val);
+	if(val){
+		printf("find admin error! - - %s", errormsg);
+		return -1;
+	}
+	if(!v.size()){
+		printf("did not find admin of %s!", GroupID);
+		return 0;
+	}
+	return v.back();
 }
 int Database::AskFriend(const char* Fid,const char* Tid){
 	char tms[64];
@@ -139,11 +183,43 @@ int Database::Join(const char* UserID, const char* GroupID){
 		printf("didn't find group");
 		return 101;
 	}
-	sprintf(order, "insert into group_request values(%s,%s,%s)",
+	sprintf(order, "insert into group_request values(%s,%s,'%s')",
 			UserID, GroupID, tms);
 	val=sqlite3_exec(handler, order, NULL, NULL, &errormsg);
 	if(val){
 		printf("join group request error: - - %s", errormsg);
+		return -1;
+	}
+	return 1;
+}
+int Database::Login(const char* UserID, const char* Password){
+	sprintf(order, "select * from User where UserID = %s and Password = '%s'", UserID, Password);
+	Database::nRows=0;
+	val=sqlite3_exec(handler, order, ADDONE, NULL, &errormsg);
+	if(val){
+		printf("login error: - - %s", errormsg);
+		return -1;
+	}
+	if(Database::nRows==0){
+		printf("wrong userid or password\n");
+		return 0;
+	}
+
+
+	sprintf(order,"select * from UnreadMessage where ReceiverID = %s",UserID);
+	val = sqlite3_exec(handler, order, GETALL, NULL, &errormsg);
+	if(val)
+	{
+		printf("send offline message error: - - %s",errormsg);
+		return -1;
+	}
+	
+
+	sprintf(order,"delete * from UnreadMessage where ReceiverID = %s",UserID);
+	val = sqlite3_exec(handler,order,NULL,NULL,&errormsg);
+	if(val)
+	{
+		printf("remove offline message error: - - %s",errormsg);
 		return -1;
 	}
 	return 1;
@@ -161,7 +237,7 @@ int Database::Invite(const char* Uid, const char* Fid, const char* Gid){
 		printf("didn't find group %s", Gid);
 		return 101;
 	}
-	sprintf(order, "insert into invite_request values (%s,%s,%s,%s)",
+	sprintf(order, "insert into invite_request values (%s,%s,%s,'%s')",
 			Uid, Fid, Gid, tms);
 	val=sqlite3_exec(handler, order, NULL, NULL, &errormsg);
 	if(val){
@@ -176,7 +252,12 @@ int Database::SaveOfflineMSG(const char* SendID, const char* RecvID, const char*
 {
 	char tms[64];
 	getTime(tms);
-	sprintf(order,"insert into UnreadOffLineMessage values (%s,%s,%s,%d,%s,%s,%d)",SendID,RecvID,GroupID,type,tms,content,tag);
+	if(tag==0){
+		sprintf(order,"insert into UnreadMessage values (%s,%s,NULL,%d,'%s','%s',%d)",SendID,RecvID,type,tms,content,tag);
+	}
+	else{
+		sprintf(order, "insert into UnreadMessage values (%s,%s,%s,%d,'%s','%s',%d)", SendID, RecvID, GroupID, content, tag);
+	}
 	val = sqlite3_exec(handler,order,NULL,NULL,&errormsg);
 	if(val)
 	{
@@ -187,16 +268,66 @@ int Database::SaveOfflineMSG(const char* SendID, const char* RecvID, const char*
 }
 
 
-
-
-vector<int> Database::GetMember(const char* GroupID)
+std::vector<int> Database::GetMember(const char* GroupID)
 {
-	v.clear();
-	sprintf(order,"select UserID from GroupUser where GroupID = %s",GroupID);
-	val = sqlite3_exec(handler,order,PUSHBACK,NULL,errormsg);
+	Database::v.clear();
+	sprintf(order,"select UserID from Group_r where GroupID = %s",GroupID);
+	val = sqlite3_exec(handler,order,PUSHINT,NULL, &errormsg);
 	if(val)
 	{
 		printf("get member error: - - %s",errormsg);
 	}
 	return v;
+}
+
+
+string Database::GetUsername(const char* UserID){
+	sprintf(order, "select UserName from User where UserID=%s", UserID);
+	val=sqlite3_exec(handler, order, GETLASTSTR, NULL, &errormsg);
+	if(val){
+		printf("find username eror : - - %s", &errormsg);
+		return "";
+	}
+	return Database::str;
+}
+
+
+int Database::AcceptFriend(const char* ReceiveID, const char* AcceptID)
+{
+	char tms[64];
+	getTime(tms);
+	sprintf(order, "insert into friend values (%s, %s, '%s')",
+			ReceiveID, AcceptID,tms);
+	val=sqlite3_exec(handler, order, NULL, NULL, &errormsg);
+	if(val){
+		printf("accept friend error: - - %s",errormsg);
+		return -1;
+	}
+	return 0;
+}
+
+
+int Database::DeleteFriend(const char* UserID,const char * FriendID)
+{
+	sprintf(order,"delete from friend where (UserID1 = %s and UserID2 = FriendID) or (UserID1 = %s and UserID2 = %s)",UserID,FriendID);
+	val = sqlite3_exec(handler,order,NULL,NULL,&errormsg);
+	if(val)
+	{
+		printf("delete friend error: - - %s",errormsg);
+		return -1;
+	}
+	return 0;
+}
+
+
+int Database::QuitGroup(const char* UserID, const char * GroupID)
+{
+	sprintf(order,"delete from Group_r where GroupID = %s and UserID = %s",GroupID,UserID);
+	val = sqlite3_exec(handler,order,NULL,NULL,&errormsg);
+	if(val)
+	{
+		printf("quit group error: - - %s",errormsg);
+		return -1;
+	}
+	return 0;
 }
