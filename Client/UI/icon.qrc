@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/leftBar">
+        <file>Icon/chat.png</file>
+        <file>Icon/chat2.png</file>
+        <file>Icon/chat3.png</file>
+        <file>Icon/contact.png</file>
+        <file>Icon/contact2.png</file>
+        <file>Icon/contact3.png</file>
+        <file>Icon/settings.png</file>
+        <file>Icon/settings2.png</file>
+        <file>Icon/settings3.png</file>
+    </qresource>
+</RCC>

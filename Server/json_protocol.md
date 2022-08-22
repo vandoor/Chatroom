@@ -88,21 +88,11 @@ server -> client: //朝申请对象发的
 client -> server:
 {
 	"type":"acceptfriend",
-	"result":0/1
+	"result":0/1,
 	"SenderID":"",
 	"ReceiverID":""
 }
 
-/*应该是不要了
-server -> client: (receiver 那一方)
-{
-	"type":"acceptfriend",
-	"status":0(出错)/1成功
-	"SenderID":"" #sender指的是发送好友请求的人，receivername就是自己的名字所以没加
-	"ReceiverID":""
-	"SenderName":""
-}
-*/
 
 server -> client: (sender 那一方)
 {
@@ -188,6 +178,7 @@ server -> client:  #申请入群那个人
 	"type":"vertifygroup",
 	"result":0/1,
 	"UserID":str,
+	"GroupName":str,
 	"GroupID":str
 }
 
@@ -290,12 +281,19 @@ client -> server
 	"UserID": str,
 	"FriendID": str
 }
-server -> client
+server -> client （删好友那一方）
 {
 	"type": "deletefriend",
-    "status": 0/1,
+    "status": 0/1, （出错或成功）
     "FriendID":str,
     "UserID":str
+}
+
+server -> client （被删好友那一方）
+{
+	"type": "losefriend",
+	"UserID": str,
+	"LoseID": str
 }
 ```
 
@@ -334,6 +332,34 @@ server -> client
 	"status" : 0（出错）/1（成功）
 	"UserID" : str
 	"GroupID" : str
+}
+server -> client 被踢的那一个
+{
+	"type" : "kicked",
+	"AdminID" : str,
+	"UserID" : str,
+	"GroupID" : str
+}
+```
+
+### 获取群聊信息
+
+```
+client -> sever
+{
+	"type" : "getgroupinfo",
+	"GroupID" : str
+}
+
+server -> client
+{
+	"type" : "groupinfo",
+	"MemberCount" : int,
+	"MemberList" : [
+		{"UserID": str, "UserName": str},
+		{"UserID": str, "UserName": str},
+		...
+	]
 }
 ```
 

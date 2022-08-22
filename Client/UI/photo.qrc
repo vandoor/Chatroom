@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/leftBar">
+        <file>dilukelaoye.jpg</file>
+        <file>jiuge.jpg</file>
+    </qresource>
+</RCC>
