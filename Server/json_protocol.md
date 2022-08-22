@@ -1,7 +1,7 @@
 # json通信协议
 
 ## 注册用户
-```
+```json
 client -> server:
 {
     "type": "register",
@@ -25,7 +25,7 @@ server -> client:
 - 离线申请好友信息
 - 离线申请加入群聊信息（所管理的群的）
 
-```
+```json
 client -> server:
 {
 	"type":"login",
@@ -42,7 +42,7 @@ server -> client:
 ```
 
 ## 建群
-```
+```json
 client -> server:
 {
     "type": "creategroup",
@@ -59,7 +59,7 @@ server -> client:
 ```
 
 ## 加好友
-```
+```json
 client -> server:
 {
     "type": "befriend",
@@ -84,7 +84,7 @@ server -> client: //朝申请对象发的
 
 ### 接受添加好友
 
-```
+```json
 client -> server:
 {
 	"type":"acceptfriend",
@@ -118,7 +118,7 @@ server -> client: (sender 那一方)
 
 加入群聊的时候还要给在线群主发送申请
 
-```
+```json
 client -> server:
 {
     "type": "join",
@@ -146,7 +146,7 @@ server -> client://朝对应群主发的
 
 ### 邀请好友入群
 
-```
+```json
 client -> server:
 {
 	"type":"invite",
@@ -174,7 +174,7 @@ server -> client: (被邀请人)
 
 ### （管理员）同意入群
 
-```
+```json
 client -> server:
 {
 	"type":"approveenter",
@@ -205,7 +205,7 @@ server -> client:
 
 ### （被邀请人）同意入群
 
-```
+```json
 client -> server:
 {
 	"type":"acceptinvite",
@@ -227,7 +227,7 @@ server -> client:
 
 ### 私聊信息
 
-```
+```json
 client -> server:
 {
 	"type":"sendfriend",
@@ -254,7 +254,7 @@ server -> client: (非当前client，接收信息)
 
 ### 群聊信息
 
-```
+```json
 client -> server
 {
 	"type":"sendgroup",
@@ -283,7 +283,7 @@ server -> client: (非当前client，接收信息)
 
 ### 删除好友
 
-```
+```json
 client -> server
 {
 	"type": "deletefriend",
@@ -301,7 +301,7 @@ server -> client
 
 ### 退出群聊
 
-```
+```json
 client -> server
 {
 	"type" : "quit"
@@ -319,7 +319,7 @@ server -> client
 
 ### 踢出群聊
 
-```
+```json
 client -> server
 {
 	"type" : "kickout",
@@ -336,4 +336,3 @@ server -> client
 	"GroupID" : str
 }
 ```
-
