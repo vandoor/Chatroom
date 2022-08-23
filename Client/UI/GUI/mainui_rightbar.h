@@ -13,6 +13,7 @@
 #include "mytoolbutton.h"
 #include "qinputdialog.h"
 #include "jsonoperator.h"
+#include "fileserver.h"
 
 class MainUI_RightBar : public QWidget
 {
@@ -26,7 +27,9 @@ public:
 public slots:
     void resizeEvent(QResizeEvent *);
     void sendText();
-    void groupMemberList();
+    void openGroupMemberList();
+    void openFirstGroupMemberList();
+    void sendFile();
 private:
     QString type;
     QString id;
@@ -48,15 +51,17 @@ private:
 
     QToolBar * toolBar;
     QTextEdit * textEdit;
+    QPushButton * clearTextPbn;
     QPushButton * sendTextPbn;
 
     Global * global;
     SignalOpt * signalOpt;
     JsonOperator * jsonOperator;
+    FileServer *fileServer;
 
 
 signals:
-
+    void flashGroupMemberList();
 };
 
 #endif // MAINUI_RIGHTBAR_H

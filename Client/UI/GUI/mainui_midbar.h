@@ -10,12 +10,15 @@
 #include <QSqlTableModel>
 #include <QMenu>
 #include <QMenuBar>
+#include <QString>
+#include "mypushbutton.h"
 #include <.\accountType\user.h>
 #include "signalopt.h"
 #include "global.h"
 #include "mytoolbutton.h"
 #include "notice.h"
 #include "jsonoperator.h"
+#include "fileserver.h"
 
 class MainUI_MidBar : public QWidget
 {
@@ -24,10 +27,7 @@ public:
     explicit MainUI_MidBar(QWidget *parent = nullptr);
 
 public slots:
-    void addFriend();
-    void buildGroup();
     void addNewGroup(QString groupID,QString groupName);
-    void joinGroup();
     void toRecentConversation();
     void toFriendList();
     void toGroupList();
@@ -44,13 +44,11 @@ public slots:
 
 private:
     QWidget *recentConversation;
-    QListWidget *friendListWgt,*groupListWgt,*settings;
+    QWidget *friendListWgt,*groupListWgt,*settings;
 
-    QPushButton * searchPtn;
     QLineEdit * searchWho;
-    QMenu * addMenu;
-    QMenuBar * addMenuBar;
-    QPushButton *toFriendListPbn,*toGroupListPbn;
+    MyPushButton *toFriendListPbn,*toGroupListPbn;
+    MyPushButton *searchPtn,*addPbn,*noticePbn;
 
     QString newGroupName;
     QString newGroupID;
@@ -64,6 +62,9 @@ private:
     Global * global;
     SignalOpt *signalOpt;
     JsonOperator * jsonOperator;
+    FileServer * fileServer;
+
+    int flag;
 
 
     

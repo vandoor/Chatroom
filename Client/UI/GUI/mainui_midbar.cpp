@@ -3,34 +3,36 @@
 #include <QDialog>
 #include <QInputDialog>
 #include <QMessageBox>
-
+#include <QApplication>
+#include <QFont>
 MainUI_MidBar::MainUI_MidBar(QWidget *parent) : QWidget(parent)
 {
     global = new Global();
     signalOpt = global->signalOpt;
     jsonOperator = new JsonOperator();
+    fileServer = new FileServer;
+
     //调背景色
     QPalette palette;
     palette.setColor(QPalette::Background,QColor("#c1cbd7"));
     setAutoFillBackground(true);
     setPalette(palette);
     //搜索栏
-    searchWho = new QLineEdit(this);
-    searchPtn = new QPushButton("搜索",this);
-    searchWho->move(0,0);
-    searchPtn->move(this->width()*8/10,0);
 
-    //添加栏
-    addMenuBar = new QMenuBar(this);
-    addMenuBar->move(10,searchWho->height());
-    addMenu = new QMenu("添加",this);
-    addMenuBar->addMenu(addMenu);
-    addMenu->addAction("添加好友",this,SLOT(addFriend()));
-    addMenu->addAction("加入群",this,SLOT(joinGroup()));
-    addMenu->addAction("创建新群",this,SLOT(buildGroup()));
-    notice = new Notice(nullptr);
-    addMenuBar->addAction("通知消息",this,SLOT(showNotice()));
-    addMenuBar->show();
+    QStringList tmp;
+    tmp <<":/midBar/Icon/search.png"
+        <<":/midBar/Icon/search.png"
+        <<":/midBar/Icon/search.png";
+
+    searchWho = new QLineEdit(this);
+    searchPtn = new MyPushButton(tmp,this);
+    tmp.clear();
+    searchWho->setStyleSheet("border-radius:4px");
+    searchWho->move(10,5);
+    searchWho->resize(220,30);
+    searchPtn->setMysize(QSize(30,30));
+    searchPtn->move(200,5);
+
 
     //近期消息界面
     recentConversation = new QWidget(this);
@@ -38,27 +40,61 @@ MainUI_MidBar::MainUI_MidBar(QWidget *parent) : QWidget(parent)
     recentConversation->hide();
 
     //好友列表界面
-    friendListWgt = new QListWidget(this);
+    friendListWgt = new QWidget(this);
     friendListLayout = new QVBoxLayout(friendListWgt);
     friendListWgt->hide();
-    toFriendListPbn = new QPushButton("好友",this);
+
+
+    tmp << ":/midBar/Icon/friend.png"
+        << ":/midBar/Icon/friend2.png"
+        << ":/midBar/Icon/friend3.png";
+    toFriendListPbn = new MyPushButton(tmp,this);
+    tmp.clear();
     toFriendListPbn->hide();
-    toFriendListPbn->move(0,searchWho->height()+addMenuBar->height());
+    toFriendListPbn->move(10,40);
     connect(toFriendListPbn,&QPushButton::clicked,this,&MainUI_MidBar::toFriendList);
 
     //群列表界面
-    groupListWgt = new QListWidget(this);
+    groupListWgt = new QWidget(this);
     groupListLayout = new QVBoxLayout(groupListWgt);
     groupListWgt->hide();
-    toGroupListPbn = new QPushButton("群",this);
+    tmp << ":/midBar/Icon/group.png"
+        << ":/midBar/Icon/group2.png"
+        << ":/midBar/Icon/group3.png";
+    toGroupListPbn = new MyPushButton(tmp,this);
+    tmp.clear();
+
     toGroupListPbn->hide();
-    toGroupListPbn->move(toFriendListPbn->width(),searchWho->height()+addMenuBar->height());
+    toGroupListPbn->move(70,40);
     connect(toGroupListPbn,&QPushButton::clicked,this,&MainUI_MidBar::toGroupList);
+    //添加按钮
+    tmp << ":/midBar/Icon/add.png"
+        << ":/midBar/Icon/add2.png"
+        << ":/midBar/Icon/add3.png";
+    addPbn = new MyPushButton(tmp,this);
+    tmp.clear();
+    addPbn->setType("add");
+    addPbn->move(190,40);
 
+    //消息按钮
+    tmp << ":/midBar/Icon/notice.png"
+        << ":/midBar/Icon/newmsg.png"
+        << ":/midBar/Icon/notice.png";
+    noticePbn = new MyPushButton(tmp,this);
+    tmp.clear();
+    noticePbn->setType("notice");
+    noticePbn->move(130,40);
+    notice = new Notice(nullptr);
+    connect(noticePbn,&MyPushButton::clicked,this,&MainUI_MidBar::showNotice);
 
-    recentConversation->move(0,searchWho->height()+addMenuBar->height());
-    friendListWgt->move(0,searchWho->height()+addMenuBar->height()+toFriendListPbn->height());
-    groupListWgt->move(0,searchWho->height()+addMenuBar->height()+toFriendListPbn->height());
+    toFriendListPbn->show();
+    toGroupListPbn->show();
+    addPbn->show();
+    noticePbn->show();
+
+    recentConversation->move(0,90);
+    friendListWgt->move(0,90);
+    groupListWgt->move(0,90);
 
 
     //创建群聊成功
@@ -171,6 +207,20 @@ MainUI_MidBar::MainUI_MidBar(QWidget *parent) : QWidget(parent)
         QMessageBox::information(nullptr,tr("踢人失败"),tr("将\"")+groupMemberName+tr("\"(")+groupMemberID+
                                  tr(")从\"")+groupName+tr("\"(")+groupID+tr(")中踢出的请求失败"));
     });
+
+    //收到文件
+    flag=1;
+    connect(signalOpt,&SignalOpt::receiveFile,this,[=](QString friendID, QString fileName, int length, int index, QString data){
+        QString path=global->path+"User/"+global->UID+"/File";
+        fileServer->recvFile(data.toUtf8(),length,index,path,fileName);
+        if(flag){
+            connect(fileServer,&FileServer::fileReceiveSuccessfully,this,[=](){
+                QMessageBox::information(this,tr("传输文件成功"),QString("用户\""+jsonOperator->findFriendName(friendID)+"\"("+friendID+")给您发送的\""+fileName+"\"的文件传输成功，您可以在"+path+"查看"),tr("好的"));
+            });
+        }
+        flag=0;
+    });
+
     initRecentConversation();
 }
 
@@ -197,24 +247,6 @@ void MainUI_MidBar::showNotice(){
     notice->show();
 }
 
-void MainUI_MidBar::addFriend(){
-    signalOpt = global->signalOpt;
-    QString friendID = QInputDialog::getText(this,tr("添加好友"),tr("请输入要添加好友的ID"));
-    signalOpt->addFriend(global->UID,friendID);
-
-}
-
-void MainUI_MidBar::buildGroup(){
-    signalOpt = global->signalOpt;
-    newGroupName = QInputDialog::getText(this,tr("创建群聊"),tr("请输入群名称"));
-    signalOpt->buildGroup(global->UID,newGroupName);
-}
-
-void MainUI_MidBar::joinGroup(){
-    signalOpt = global->signalOpt;
-    QString groupID = QInputDialog::getText(this,tr("加入群聊"),tr("请输入群ID"));
-    signalOpt->joinGroup(global->UID,groupID);
-}
 
 void MainUI_MidBar::addNewGroup(QString groupID,QString groupName){
     jsonOperator->addGrouptoList(groupID,groupName);
@@ -223,19 +255,11 @@ void MainUI_MidBar::addNewGroup(QString groupID,QString groupName){
 
 void MainUI_MidBar::initRecentConversation(){
     QList<QString> recentCNamelist,recentCIDList,recentCHeadList;
-    recentCIDList.append("10001");
-    recentCIDList.append("10086");
-
-    recentCNamelist.append("九哥1号");
-    recentCNamelist.append("管理员");
-
-    recentCHeadList.append(":/leftBar/jiuge.jpg");
-    recentCHeadList.append(":/leftBar/jiuge.jpg");
 
     int n = recentCNamelist.size();
     delete recentConversation;
     recentConversation = new QWidget(this);
-    recentConversation->move(0,searchWho->height()+addMenuBar->height());
+    recentConversation->move(0,80);
     recentConversationLayout = new QVBoxLayout(recentConversation);
     for(int i=0;i<n;i++){
         MyToolButton* toolbtn = new MyToolButton(recentConversation);
@@ -252,12 +276,9 @@ void MainUI_MidBar::initRecentConversation(){
         recentConversationLayout->addWidget(toolbtn);
     }
     recentConversationLayout->addStretch();
-    addMenuBar->show();
     recentConversation->show();
     friendListWgt->hide();
     groupListWgt->hide();
-    toFriendListPbn->hide();
-    toGroupListPbn->hide();
 }
 
 void MainUI_MidBar::initGroupList(){
@@ -268,8 +289,8 @@ void MainUI_MidBar::initGroupList(){
 
     int n = groupIDList->size();
     delete groupListWgt;
-    groupListWgt = new QListWidget(this);
-    groupListWgt->move(0,searchWho->height()+addMenuBar->height()+toFriendListPbn->height());
+    groupListWgt = new QWidget(this);
+    groupListWgt->move(0,80);
     groupListLayout = new QVBoxLayout(groupListWgt);
     for(int i=0;i<n;i++){
         MyToolButton* toolbtn = new MyToolButton(groupListWgt);
@@ -287,8 +308,6 @@ void MainUI_MidBar::initGroupList(){
     recentConversation->hide();
     friendListWgt->hide();
     groupListWgt->show();
-    toFriendListPbn->show();
-    toGroupListPbn->show();
 }
 
 void MainUI_MidBar::initFriendList(){
@@ -298,8 +317,8 @@ void MainUI_MidBar::initFriendList(){
             *friendHeadList = global->FriendHeadList;
     int n = friendIDList->size();
     delete friendListWgt;
-    friendListWgt = new QListWidget(this);
-    friendListWgt->move(0,searchWho->height()+addMenuBar->height()+toFriendListPbn->height());
+    friendListWgt = new QWidget(this);
+    friendListWgt->move(0,80);
     friendListLayout = new QVBoxLayout(friendListWgt);
     for(int i=0;i<n;i++){
         MyToolButton* toolbtn = new MyToolButton(friendListWgt);
@@ -318,8 +337,6 @@ void MainUI_MidBar::initFriendList(){
     recentConversation->hide();
     friendListWgt->show();
     groupListWgt->hide();
-    toFriendListPbn->show();
-    toGroupListPbn->show();
 }
 
 void MainUI_MidBar::openConversation(){

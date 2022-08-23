@@ -43,8 +43,9 @@ SOURCES += \
     GUI/mytoolbutton.cpp \
     GUI/notice.cpp \
     jsonoperator.cpp \
-    mypushbutton.cpp \
-    noticeitem.cpp
+    GUI/mypushbutton.cpp \
+    noticeitem.cpp \
+    fileserver.cpp
 
 HEADERS += \
         widget.h \
@@ -64,8 +65,9 @@ HEADERS += \
     GUI/mytoolbutton.h \
     GUI/notice.h \
     jsonoperator.h \
-    mypushbutton.h \
-    noticeitem.h
+    GUI/mypushbutton.h \
+    noticeitem.h \
+    fileserver.h
 
 
 FORMS += \
@@ -85,4 +87,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     photo.qrc \
-    icon.qrc
+    icon.qrc \
+    resource.qrc

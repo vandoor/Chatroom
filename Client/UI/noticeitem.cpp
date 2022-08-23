@@ -81,7 +81,7 @@ void NoticeItem::resetButton(){
     }
     else if(type=="kickedoutFromGroup"){
         //被踢出群聊通知
-        noticeText = new QLabel("群\""+groupName+tr("\"(")+groupID+")的管理员("+friendID+")已经将你从好友列表里删除啦!",this);
+        noticeText = new QLabel("群\""+groupName+tr("\"(")+groupID+")的管理员("+friendID+")已经将你从群成员列表里删除啦!",this);
         noticeText->show();
         agree->hide();
         disagree->hide();

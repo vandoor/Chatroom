@@ -1,13 +1,14 @@
 #include "mainui.h"
 #include "ui_mainui.h"
 #include <QDebug>
-
+#include <QFont>
 MainUI::MainUI(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainUI)
 {
     ui->setupUi(this);
     ui->menubar->hide();
+//    this->setStyleSheet("border:1px solid black;border-radius:4px");
     //三个bar + 一个消息框
     leftBar = new MainUI_LeftBar(this);
     midBar = new MainUI_MidBar(this);

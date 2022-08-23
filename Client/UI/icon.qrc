@@ -10,4 +10,18 @@
         <file>Icon/settings2.png</file>
         <file>Icon/settings3.png</file>
     </qresource>
+    <qresource prefix="/midBar">
+        <file>Icon/friend.png</file>
+        <file>Icon/friend2.png</file>
+        <file>Icon/friend3.png</file>
+        <file>Icon/group.png</file>
+        <file>Icon/group2.png</file>
+        <file>Icon/group3.png</file>
+        <file>Icon/newmsg.png</file>
+        <file>Icon/notice.png</file>
+        <file>Icon/add.png</file>
+        <file>Icon/add2.png</file>
+        <file>Icon/add3.png</file>
+        <file>Icon/search.png</file>
+    </qresource>
 </RCC>

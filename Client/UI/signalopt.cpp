@@ -5,7 +5,7 @@ SignalOpt::SignalOpt(QWidget *parent) : QWidget(parent)
 {
     client = new QTcpSocket(nullptr);
     //在这里修改地址
-    client->connectToHost(QHostAddress("10.198.79.15"),8888);
+    client->connectToHost(QHostAddress("192.168.2.3"),8848);
     connect(client,&QTcpSocket::readyRead,this,&SignalOpt::signalReceiver);
 }
 
@@ -215,13 +215,44 @@ int SignalOpt::kickoutGroup(QString adminID, QString userID, QString groupID)
     //把人踢出群聊
     //adminID：自己的ID  userID：要踢的人的ID
     QJsonObject json;
-    json.insert("type", "quit");
+    json.insert("type", "kickout");
     json.insert("AdminID", adminID);
     json.insert("UserID", userID);
     json.insert("GroupID", groupID);
     int val = signalSender(json);
     if(val==-1){
         qDebug()<<"kick out error!";
+        return -1;
+    }
+    return val;
+}
+
+int SignalOpt::sendFilePiece(QString UID, QString friendID, QString fileName, int length, int index, char* data)
+{
+    //发送文件
+    QJsonObject json;
+    json.insert("type", "file");
+    json.insert("UserID", UID);
+    json.insert("FriendID", friendID);
+    json.insert("FileName", fileName);
+    json.insert("Length", length);
+    json.insert("Index", index);
+    json.insert("Data", data);
+    int val = signalSender(json);
+    if(val==-1){
+        qDebug()<<"file send error!";
+        return -1;
+    }
+    return val;
+}
+
+int SignalOpt::getGroupMemberList(QString groupID){
+    QJsonObject json;
+    json.insert("type","getgroupinfo");
+    json.insert("GroupID",groupID);
+    int val = signalSender(json);
+    if(val==-1){
+        qDebug()<<"getgroupinfo error";
         return -1;
     }
     return val;
@@ -319,14 +350,14 @@ void SignalOpt::signalReceiver(){
                 QJsonValue receiverID_value = object.value("ReceiverID");
                 QString receiverID = receiverID_value.toString();   //接收请求一方（对方）的ID
                 QJsonValue receiverName_value = object.value("ReceiverName");
-                QString receiverName = receiverID_value.toString(); //接收请求一方（对方）的用户名
+                QString receiverName = receiverName_value.toString(); //接收请求一方（对方）的用户名
                 if(result == 0){
                     //对方拒绝请求
-                    emit vertifyFriendSuccessfully(receiverID,receiverName);
+                    emit vertifyFriendUnsuccessfully(receiverID,receiverName);
                 }
                 else if(result == 1){
                     //对方同意请求
-                    emit vertifyFriendUnsuccessfully(receiverID,receiverName);
+                    emit vertifyFriendSuccessfully(receiverID,receiverName);
                 }
             }
             else if(type == tr("askfriend")){
@@ -576,13 +607,40 @@ void SignalOpt::signalReceiver(){
                 QString GroupID = GroupID_value.toString();
                 emit kickedFromGroup(AdminID,GroupID);
             }
-            else{
+            else if(type == tr("file")){
+                //接收文件
+                QJsonValue friendID_value = object.value("FriendID");
+                QString friendID = friendID_value.toString();
+                QJsonValue fileName_value = object.value("FileName");
+                QString fileName = fileName_value.toString();
+                QJsonValue length_value = object.value("Length");
+                int length = length_value.toInt();
+                QJsonValue index_value = object.value("Index");
+                int index = index_value.toInt();
+                QJsonValue data_value = object.value("Data");
+                QString data = data_value.toString();
+                emit receiveFile(friendID,fileName,length,index,data);
+
+            }
+            else if(type == tr("groupinfo")){
+                QJsonValue GroupID_value = object.value("GroupID");
+                QString GroupID = GroupID_value.toString();
+                QJsonValue MemberCount_value = object.value("MemberCount");
+                int memberCount = MemberCount_value.toInt();
+                QJsonValue MemberList_value = object.value("MemberList");
+                QJsonArray memberList =MemberList_value.toArray();
+                emit receiveGroupMemberList(GroupID,memberCount,memberList);
+            }
+            else if(type == "1"){
+                emit fileDuanSuccessfully();
+            }
+            else {
                 qDebug()<<"receive format undefined!";
             }
         }
+        QString str(recv);
+        receivedSignal.append(str);
     }
-    QString str(recv);
-    receivedSignal.append(str);
 }
 
 QString SignalOpt::getReceivedSignal(){

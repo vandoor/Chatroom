@@ -147,6 +147,34 @@ void JsonOperator::readGroupMemberList(QString GroupID){
         }
         file.close();
     }
+}
+
+void JsonOperator::setGroupMemberList(QString GroupID,int GroupMemberNum,QJsonArray GroupMemberList){
+    QFile groupMemberListFile(global->path+"User/"+global->UID+"/GroupList/"+GroupID+".json");
+    if(groupMemberListFile.exists()){
+        groupMemberListFile.remove();
+    }
+    groupMemberListFile.open(QIODevice::WriteOnly|QIODevice::Text);
+    groupMemberListFile.close();
+    if(groupMemberListFile.open(QIODevice::WriteOnly|QIODevice::Text)){
+        QJsonObject object = QJsonObject();
+        object.insert("GroupMemberNum",GroupMemberNum);
+        QJsonArray resetGroupMemberList=QJsonArray();
+        for(int i=0;i<GroupMemberNum;i++){
+            QJsonObject groupMemberiInfo = GroupMemberList[i].toObject();
+            QString groupMemberID = groupMemberiInfo.value("UserID").toString();
+            QString groupMemberName = groupMemberiInfo.value("UserName").toString();
+            groupMemberiInfo = QJsonObject();
+            groupMemberiInfo.insert("GroupMemberID",groupMemberID);
+            groupMemberiInfo.insert("GroupMemberName",groupMemberName);
+            qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
+            groupMemberiInfo.insert("GroupMemberHead","head3.png");
+            resetGroupMemberList.append(QJsonValue(groupMemberiInfo));
+        }
+        object.insert("GroupMemberList",resetGroupMemberList);
+        QJsonDocument doc = QJsonDocument(object);
+        groupMemberListFile.write(doc.toJson());
+    }
 
 }
 
@@ -258,7 +286,13 @@ void JsonOperator::addFriendtoList(QString friendID, QString friendName){
                 QJsonObject *newFriendInfo = new QJsonObject();
                 newFriendInfo->insert("FriendID",friendID);
                 newFriendInfo->insert("FriendName",friendName);
-                newFriendInfo->insert("FriendHead","9999.jpg");
+                qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
+                int rand = qrand() % 3;
+                QString randNum;
+                if(rand==1) randNum=1;
+                else if(rand==2) randNum=2;
+                else randNum=3;
+                newFriendInfo->insert("FriendHead","head"+randNum+".png");
                 FriendList_value.append(QJsonValue(*newFriendInfo));
                 FriendNum++;
                 object = QJsonObject();
@@ -313,7 +347,7 @@ void JsonOperator::addGrouptoList(QString groupID,QString groupName){
                 QJsonObject *newGroupInfo = new QJsonObject();
                 newGroupInfo->insert("GroupID",groupID);
                 newGroupInfo->insert("GroupName",groupName);
-                newGroupInfo->insert("GroupHead","9999.jpg");
+                newGroupInfo->insert("GroupHead","grouphead.png");
                 GroupList_value.append(QJsonValue(*newGroupInfo));
                 GroupNum++;
                 object = QJsonObject();
@@ -362,7 +396,7 @@ void JsonOperator::addGroupMembertoList(QString GroupID,QString groupMemberID,QS
             object = QJsonObject();
             object.insert("GroupMemberID",groupMemberID);
             object.insert("GroupMemberName",groupMemberName);
-            object.insert("GroupMemberHead","9999.jpg");
+            object.insert("GroupMemberHead","head3.png");
             GroupMemberList_value.append(QJsonValue(object));
             object = QJsonObject();
             object.insert("GroupMemberNum",GroupMemberNum+1);
@@ -721,6 +755,7 @@ void JsonOperator::initUserData(QString UserID,QString UserName){
     dir.mkpath(path+"/FriendRecord");
     dir.mkpath(path+"/GroupList");
     dir.mkpath(path+"/GroupRecord");
+    dir.mkpath(path+"/File");
     QFile UserInfofile(path+"/UserInfo.json");
     QJsonObject object;
     object.insert("UserID",UserID);

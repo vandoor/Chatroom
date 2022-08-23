@@ -5,7 +5,7 @@ Widget::Widget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Widget)
 {
-    int flag=1;
+    int flag=0;
     //0 -> 用户模式,初始为登陆界面
     //1 -> 开发者模式(做了一小部分)
     //2 -> 直接进ui界面

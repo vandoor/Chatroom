@@ -6,6 +6,7 @@
 #include <QHostAddress>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <QJsonArray>
 #include <QJsonParseError>
 
 class SignalOpt : public QWidget
@@ -31,8 +32,10 @@ public:
     int deleteFriend(QString UID, QString friendID);
     int leaveGroup(QString UID, QString groupID);
     int kickoutGroup(QString adminID, QString userID, QString groupID);
-
+    int sendFilePiece(QString UID, QString friendID, QString fileName, int length, int index, char * data);
+    int getGroupMemberList(QString groupID);
     int signalSender(QJsonObject json);
+
     QString getReceivedSignal();
 
 
@@ -78,7 +81,10 @@ signals:
     void kickoutGroupSuccessfully(QString friendID,QString groupID);
     void kickoutGroupUnsuccessfully(QString friendID,QString groupID);
     void loseFriend(QString loseID);
+    void receiveFile(QString friendID, QString fileName, int length, int index, QString data);
     void kickedFromGroup(QString adminID,QString groupID);
+    void receiveGroupMemberList(QString groupID,int groupMemberNum,QJsonArray groupMemberList);
+    void fileDuanSuccessfully();
 };
 
 #endif // SIGNALOPT_H

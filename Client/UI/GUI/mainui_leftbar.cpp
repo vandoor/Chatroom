@@ -30,7 +30,7 @@ MainUI_LeftBar::MainUI_LeftBar(QWidget *parent) : QWidget(parent)
 
     headPhoto = new QLabel(this);
     //头像
-    headPhoto->move(20,30);
+    headPhoto->move(20,15);
     QPixmap pixmap = QPixmap(":/leftBar/jiuge.jpg");
     pixmap=pixmap.scaled(40,40,Qt::IgnoreAspectRatio);
     headPhoto->setPixmap(pixmap);

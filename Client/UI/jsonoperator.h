@@ -4,6 +4,8 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QTime>
+#include <QtGlobal>
 #include "global.h"
 
 class JsonOperator
@@ -14,6 +16,7 @@ public:
     void readFriendList();
     void readGroupList();
     void readGroupMemberList(QString GroupID);
+    void setGroupMemberList(QString GroupID,int GroupMemberNum,QJsonArray GroupMemberList);
     void readFriendRecord(QString FriendID);
     void readGroupRecord(QString GroupID);
     void addFriendtoList(QString friendID,QString friendName);
