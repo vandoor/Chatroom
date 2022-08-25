@@ -18,12 +18,12 @@ class Notice : public QWidget
 public:
     explicit Notice(QWidget *parent = nullptr);
     ~Notice();
-
+    void resetNotice();
 private:
     Ui::Notice *ui;
-    QWidget * widget;
-    QVBoxLayout * widgetLayout;
 
+    int nowHeight;
+    QList<NoticeItem *> item;
     Global * global;
     SignalOpt * signalOpt;
     JsonOperator *jsonOperator;
@@ -31,6 +31,7 @@ signals:
     void agreeNewFriend(QString friendID,QString friendName);
     void flashFriendList();
     void flashGroupList();
+
 
 };
 

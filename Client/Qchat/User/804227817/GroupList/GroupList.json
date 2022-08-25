@@ -1,0 +1,15 @@
+{
+    "GroupList": [
+        {
+            "GroupHead": "grouphead.png",
+            "GroupID": "1114429364",
+            "GroupName": "GroupB"
+        },
+        {
+            "GroupHead": "grouphead.png",
+            "GroupID": "624576215",
+            "GroupName": "GroupA"
+        }
+    ],
+    "GroupNum": 2
+}

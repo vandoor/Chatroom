@@ -22,8 +22,8 @@ public:
     void addFriendtoList(QString friendID,QString friendName);
     void addGrouptoList(QString groupID,QString groupName);
     void addGroupMembertoList(QString GroupID,QString groupMemberID,QString groupMemberName);
-    void addFriendRecord(QString friendID,int type,QString context);
-    void addGroupRecord(QString groupID,QString groupMemberID,QString context);
+    void addFriendRecord(int note,QString friendID,int type,QString context);
+    void addGroupRecord(int note,QString groupID,QString groupMemberID,QString context);
     void removeFriendFromList(QString FriendID);
     void removeGroupFromList(QString GroupID);
     void removeGroupMemberFromList(QString GroupID,QString GroupMemberID);

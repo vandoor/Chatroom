@@ -26,16 +26,30 @@ MainUI_RightBar::MainUI_RightBar(QWidget *parent) : QWidget(parent)
     connect(groupMemberListPbn,&QPushButton::clicked,this,&MainUI_RightBar::openFirstGroupMemberList);
 
     //聊天记录框
-    textRecord = new QWidget(this);
-    textRecordLayout = new QVBoxLayout(textRecord);
+    textRecord = new TextRecord(this);
+    textRecord->setFixedSize(this->width(),this->height()*96/156-80);
+    textRecord->move(0,50);
     textRecord->hide();
 
+    textScrollArea = new QScrollArea(this);
+    textScrollArea->move(0,50);
+    textScrollArea->setFixedSize(this->width(),this->height()*96/156-80);
+    textScrollArea->setVisible(false);
+
+
     //工具栏
-    toolBar = new QToolBar(this);
-    toolBar->addAction("发送图片");
-    toolBar->addAction("发送文件",this,SLOT(sendFile()));
-    toolBar->addAction("发送语音");
-    toolBar->hide();
+    menuBar = new QMenuBar(this);
+    QMenu * emoji = new QMenu("发送表情包",this);
+    emoji->addAction(QIcon(global->path+"emoji/"+"大哭.jpg"),"大哭",this,SLOT(sendDaku()));
+    emoji->addAction(QIcon(global->path+"emoji/"+"害羞.jpg"),"害羞",this,SLOT(sendHaixiu()));
+    emoji->addAction(QIcon(global->path+"emoji/"+"微笑.jpg"),"微笑",this,SLOT(sendWeixiao()));
+    emoji->addAction(QIcon(global->path+"emoji/"+"气.jpg"),"气",this,SLOT(sendQi()));
+    emoji->addAction(QIcon(global->path+"emoji/"+"装傻.jpg"),"装傻",this,SLOT(sendZhuangsha()));
+    menuBar->addMenu(emoji);
+
+    menuBar->addAction("发送文件",this,SLOT(sendFile()));
+    menuBar->addAction("发送语音");
+    menuBar->hide();
 
     //文本编辑栏
     textEdit = new QTextEdit(this);
@@ -52,16 +66,29 @@ MainUI_RightBar::MainUI_RightBar(QWidget *parent) : QWidget(parent)
     });
     //收到消息
     connect(signalOpt,&SignalOpt::receiveFriendText,this,[=](QString friendID,QString text){
-        jsonOperator->addFriendRecord(friendID,1,text);
+        jsonOperator->addFriendRecord(0,friendID,1,text);
         jsonOperator->readFriendRecord(id);
         flashTextRecord();
     });
 
     connect(signalOpt,&SignalOpt::receiveGroupText,this,[=](QString groupID,QString groupMemberID,QString message){
-        jsonOperator->addGroupRecord(groupID,groupMemberID,message);
+        jsonOperator->addGroupRecord(0,groupID,groupMemberID,message);
         jsonOperator->readGroupRecord(id);
         flashTextRecord();
     });
+    //收到表情包
+    connect(signalOpt,&SignalOpt::receiveFriendEmoji,this,[=](QString friendID,QString index){
+        jsonOperator->addFriendRecord(1,friendID,1,index);
+        jsonOperator->readFriendRecord(id);
+        flashTextRecord();
+    });
+
+    connect(signalOpt,&SignalOpt::receiveGroupEmoji,this,[=](QString groupID,QString groupMemberID,QString index){
+        jsonOperator->addGroupRecord(1,groupID,groupMemberID,index);
+        jsonOperator->readGroupRecord(id);
+        flashTextRecord();
+    });
+
     //发送消息失败
     connect(signalOpt,&SignalOpt::sendFriendTextUnsuccessfully,this,[=](){
         QString friendName = jsonOperator->findFriendName(friendID);
@@ -79,6 +106,7 @@ MainUI_RightBar::MainUI_RightBar(QWidget *parent) : QWidget(parent)
        emit flashGroupMemberList();
        openGroupMemberList();
     });
+    initTextScrollBar();
 
 }
 
@@ -133,8 +161,8 @@ void MainUI_RightBar::openChatWindow(MyToolButton * sender){
     }
     flashTextRecord();
     //工具栏
-    toolBar->move(0,this->height()*96/156-30);
-    toolBar->setFixedSize(this->width(),30);
+    menuBar->move(0,this->height()*96/156-30);
+    menuBar->setFixedSize(this->width(),30);
     //文本编辑栏
     textEdit->move(0,this->height()*96/156);
     textEdit->setFixedSize(this->width(),this->height()-this->height()*96/156);
@@ -151,7 +179,7 @@ void MainUI_RightBar::openChatWindow(MyToolButton * sender){
     //显示
 
     textRecord->show();
-    toolBar->show();
+    menuBar->show();
     textEdit->show();
     sendTextPbn->show();
     clearTextPbn->show();
@@ -167,7 +195,6 @@ void MainUI_RightBar::resizeEvent(QResizeEvent *event){
     friendHead->move(10,10);
     friendName->setFixedSize(this->width()*8/10,friendName->height());
     friendName->move(10+friendHead->width()+5,10);
-
     groupInfoTitle->setFixedSize(this->width(),50);
     groupHead->setFixedSize(25,25);
     groupHead->move(10,10);
@@ -175,15 +202,13 @@ void MainUI_RightBar::resizeEvent(QResizeEvent *event){
     groupName->move(10+groupHead->width()+5,10);
     inviteFriendPbn->move(this->width()-75,10);
     groupMemberListPbn->move(this->width()-150,10);
-    textRecord->setFixedSize(this->width(),this->height()*96/156-80);
-    textRecord->move(0,50);
-    toolBar->move(0,this->height()*96/156-30);
-    toolBar->setFixedSize(this->width(),30);
+    textScrollArea->setFixedSize(this->width(),this->height()*96/156-80);
+    menuBar->move(0,this->height()*96/156-30);
+    menuBar->setFixedSize(this->width(),30);
     textEdit->move(0,this->height()*96/156);
     textEdit->setFixedSize(this->width(),this->height()-this->height()*96/156);
     sendTextPbn->move(this->width()-70,this->height()-40);
     clearTextPbn->move(this->width()-130,this->height()-40);
-
 }
 
 void MainUI_RightBar::sendText(){
@@ -193,7 +218,7 @@ void MainUI_RightBar::sendText(){
     if(text=="") return ;
     if(type=="friend") {
         signalOpt->friendChat(global->UID,friendID,text);
-        jsonOperator->addFriendRecord(friendID,0,text);
+        jsonOperator->addFriendRecord(0,friendID,0,text);
         jsonOperator->readFriendRecord(id);
         flashTextRecord();
     }
@@ -204,6 +229,27 @@ void MainUI_RightBar::sendText(){
 //        flashTextRecord();
     }
 }
+void MainUI_RightBar::sendDaku(){sendEmoji("大哭");}
+void MainUI_RightBar::sendHaixiu(){sendEmoji("害羞");}
+void MainUI_RightBar::sendWeixiao(){sendEmoji("微笑");}
+void MainUI_RightBar::sendQi(){sendEmoji("气");}
+void MainUI_RightBar::sendZhuangsha(){sendEmoji("装傻");}
+
+
+
+
+void MainUI_RightBar::sendEmoji(QString index){
+    if(type=="friend"){
+        signalOpt->sendFriendEmoji(global->UID,friendID,index);
+        jsonOperator->addFriendRecord(1,friendID,0,index);
+        jsonOperator->readFriendRecord(friendID);
+        flashTextRecord();
+    }
+    else {
+        signalOpt->sendGroupEmoji(global->UID,groupID,index);
+    }
+}
+
 
 void MainUI_RightBar::sendFile(){
     QString file = QFileDialog::getOpenFileUrl(this,tr("选择要发送的文件"),QUrl("D:/"),"").toString();
@@ -221,7 +267,7 @@ void MainUI_RightBar::inviteFriend(){
 }
 
 void MainUI_RightBar::openFirstGroupMemberList(){
-//    signalOpt->getGroupMemberList(groupID);
+    signalOpt->getGroupMemberList(groupID);
     openGroupMemberList();
 }
 
@@ -254,24 +300,74 @@ void MainUI_RightBar::openGroupMemberList(){
 
 void MainUI_RightBar::flashTextRecord(){
     delete textRecord;
-    textRecord = new QWidget(this);
-    textRecordLayout = new QVBoxLayout(textRecord);
-    textRecord->setFixedSize(this->width(),this->height()*96/156-80);
+    textRecord = new TextRecord(this);
+    textRecord->setFixedSize(this->width()-30,this->height()*96/156-80);
     textRecord->move(0,50);
+    textScrollArea = new QScrollArea(this);
+    textScrollArea->move(0,50);
+    textScrollArea->setFixedSize(this->width(),this->height()*96/156-80);
+    QPalette palette;
+    palette.setBrush(QPalette::Background,QBrush(QPixmap(":/bubble/Icon/chatBackground.jpg").scaled(QSize(textScrollArea->width(),textScrollArea->height()))));
+    textScrollArea->setAutoFillBackground(true);
+    textScrollArea->setPalette(palette);
+    QList<int> *RecordNote;
     QList<QString> *RecordText,*RecordUID,*RecordTime;
+    RecordNote = global->RecordNote;
     RecordText = global->RecordText;
     RecordUID = global->RecordUID;
     RecordTime = global->RecordTime;
     int n = RecordUID->length();
+    int nowHeight =0;
     for(int i=0;i<n;i++){
-        QLabel * label = new QLabel(textRecord);
+        QLabel * label1 = new QLabel(textRecord);
+        QLabel * label2 = new QLabel(textRecord);
         QString time = QString("");
         QString recordtime = (*RecordTime)[i];
         time.append(recordtime.left(4)+"年"+recordtime.mid(4,2)+"月"+recordtime.mid(6,2)+"日");
         time.append(recordtime.mid(8,2)+":"+recordtime.mid(10,2)+":"+recordtime.mid(12,2));
-        label->setText((*RecordUID)[i]+"  "+time+"\n"+(*RecordText)[i]);
-        textRecordLayout->addWidget(label);
+        if((*RecordNote)[i]==1){
+            QPixmap pixmap = QPixmap(global->path+"emoji/"+(*RecordText)[i]+".jpg");
+            pixmap=pixmap.scaled(40,40,Qt::IgnoreAspectRatio);
+            label2->setPixmap(pixmap);
+        }
+        else {
+            label2->setText("\n  "+(*RecordText)[i]+" \b\n");
+            label2->adjustSize();
+        }
+        QPalette pal;
+        if((*RecordUID)[i]==global->UID) pal.setBrush(QPalette::Background,QBrush(QPixmap(":/bubble/Icon/myBubble.jpg").scaled(QSize(label2->width(),label2->height()))));
+        else pal.setBrush(QPalette::Background,QBrush(QPixmap(":/bubble/Icon/otherBubble.jpg").scaled(QSize(label2->width(),label2->height()))));
+        label2->setAutoFillBackground(true);
+        label2->setPalette(pal);
+        if((*RecordUID)[i]==global->UID){
+            label1->setText(global->UName+"  "+time);
+            label1->setStyleSheet("color: rgb(0, 203, 0);");
+        }
+        else if(type=="friend") label1->setText(jsonOperator->findFriendName((*RecordUID)[i])+"  "+time);
+        else label1->setText(jsonOperator->findGroupMemberName(groupID,(*RecordUID)[i])+"  "+time);
+        label1->adjustSize();
+
+        if((*RecordUID)[i]==global->UID){
+            label1->move(this->width()-label1->width()-40,nowHeight);
+            nowHeight+=label1->height();
+            label2->move(this->width()-label2->width()-40,nowHeight);
+        }
+        else{
+            label1->move(5,nowHeight);
+            nowHeight+=label1->height();
+            label2->move(5,nowHeight);
+        }
+        nowHeight+=label2->height();
+        nowHeight+=20;
     }
-    textRecordLayout->addStretch();
-    textRecord->show();
+    textRecord->setMaximumWidth(this->width()-25);
+    textRecord->adjustSize();
+    textRecord->setFixedWidth(this->width()-30);
+    textRecord->setMinimumHeight(nowHeight);
+    textScrollArea->setWidget(textRecord);
+    textScrollArea->show();
+}
+
+void MainUI_RightBar::initTextScrollBar(){
+    textScrollArea->hide();
 }

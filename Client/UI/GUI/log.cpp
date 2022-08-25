@@ -54,3 +54,13 @@ void Log::loginUnsuccessfully(){
     int ret=QMessageBox::critical(this,tr("错误"),tr("用户名或密码输入错误"),tr("重新输入"),tr("退出"));
     if(ret) this->close();
 }
+
+void Log::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event);
+    QStyleOption o;
+    o.initFrom(this);
+    QPainter p(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &o, &p, this);
+    QWidget::paintEvent(event);
+}

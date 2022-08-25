@@ -57,7 +57,6 @@ private:
     Notice * notice;
     QVBoxLayout *recentConversationLayout;
     QVBoxLayout *friendListLayout;
-    QVBoxLayout *groupListLayout;
 
     Global * global;
     SignalOpt *signalOpt;

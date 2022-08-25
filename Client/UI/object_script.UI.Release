@@ -20,6 +20,7 @@ INPUT(
 ./release\mypushbutton.o
 ./release\noticeitem.o
 ./release\fileserver.o
+./release\textrecord.o
 ./release\qrc_photo.o
 ./release\qrc_icon.o
 ./release\qrc_resource.o
@@ -39,4 +40,5 @@ INPUT(
 ./release\moc_mypushbutton.o
 ./release\moc_noticeitem.o
 ./release\moc_fileserver.o
+./release\moc_textrecord.o
 );

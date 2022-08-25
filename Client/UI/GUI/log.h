@@ -5,6 +5,7 @@
 #include "signalopt.h"
 #include "global.h"
 #include "jsonoperator.h"
+#include "qpainter.h"
 
 namespace Ui {
 class Log;
@@ -21,6 +22,7 @@ public:
     QString getAccount();
     void loginSuccessfully(QString UserName);
     void loginUnsuccessfully();
+    void paintEvent(QPaintEvent *event);
 
 private:
     Ui::Log *ui;

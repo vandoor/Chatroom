@@ -4,7 +4,7 @@
 #include <QWidget>
 #include "signalopt.h"
 #include "global.h"
-
+#include "qpainter.h"
 namespace Ui {
 class Logon;
 }
@@ -19,6 +19,7 @@ public:
     ~Logon();
     void logonSuccessfully(QString UID);
     void logonUnsuccessfully();
+    void paintEvent(QPaintEvent *event);
 
 
 private:

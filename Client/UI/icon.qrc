@@ -24,4 +24,16 @@
         <file>Icon/add3.png</file>
         <file>Icon/search.png</file>
     </qresource>
+    <qresource prefix="/log">
+        <file>Icon/QChat.jpg</file>
+        <file>Icon/logbackgroud1.jpg</file>
+        <file>Icon/nobackground.jpg</file>
+        <file>Icon/coloredBackgroup.png</file>
+    </qresource>
+    <qresource prefix="/bubble">
+        <file>Icon/myBubble.jpg</file>
+        <file>Icon/otherBubble.jpg</file>
+        <file>Icon/chatBackground.jpg</file>
+        <file>Icon/noticeBackground.jpg</file>
+    </qresource>
 </RCC>

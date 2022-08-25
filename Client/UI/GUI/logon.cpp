@@ -51,3 +51,14 @@ void Logon::logonSuccessfully(QString UID){
 void Logon::logonUnsuccessfully(){
 
 }
+
+void Logon::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event);
+    QStyleOption o;
+    o.initFrom(this);
+    QPainter p(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &o, &p, this);
+    QWidget::paintEvent(event);
+}
+

@@ -25,15 +25,14 @@ void FileServer::sendFile(QString filePath, QString UID, QString friendID)
         int index = 1;
         qint64 len = 0;
 
-        QDataStream in(&file);
         do{
             char buf[MAXLEN+10] = {0};
-            len = in.readRawData(buf, MAXLEN);
+            len = file.read(buf, MAXLEN);
 
             signalOpt->sendFilePiece(UID, friendID, fileName, size, index, buf);
             QTime t;
             t.start();
-            while(t.elapsed()<300) QCoreApplication::processEvents();
+            while(t.elapsed()<400) QCoreApplication::processEvents();
             index++;
         }while(len > 0);
         emit fileSendSuccessfully();
@@ -53,11 +52,11 @@ void FileServer::recvFile(QByteArray Data, int length, int index, QString filePa
     QFile temp(path);
     int result;
     if(index == 1){
-        result=temp.open(QIODevice::WriteOnly);
+        result=temp.open(QIODevice::WriteOnly | QIODevice::Text);
         recvSize = 0;
     }
     else{
-        result=temp.open(QIODevice::WriteOnly | QIODevice::Append);
+        result=temp.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
     }
 
     qDebug()<<"Open result:"<<result;

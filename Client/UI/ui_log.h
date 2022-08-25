@@ -54,15 +54,12 @@ public:
     {
         if (Log->objectName().isEmpty())
             Log->setObjectName(QStringLiteral("Log"));
-        Log->resize(381, 267);
-        Log->setStyleSheet(QLatin1String("QListView{\n"
-"	font:25 9pt \"Microsoft YaHei\";\n"
-"	border: 15px soild white;\n"
-"	border-radius: 10px;\n"
-"}"));
+        Log->resize(395, 404);
+        Log->setStyleSheet(QLatin1String("background-image: url(:/log/Icon/logbackgroud1.jpg);\n"
+""));
         verticalLayout = new QVBoxLayout(Log);
         verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
-        verticalSpacer_4 = new QSpacerItem(20, 60, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        verticalSpacer_4 = new QSpacerItem(20, 120, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         verticalLayout->addItem(verticalSpacer_4);
 
@@ -74,15 +71,21 @@ public:
 
         accountLabel = new QLabel(Log);
         accountLabel->setObjectName(QStringLiteral("accountLabel"));
+        accountLabel->setStyleSheet(QString::fromUtf8("background: transparent; \n"
+"font: 10pt \"\351\273\221\344\275\223\";"));
 
         accountLayout->addWidget(accountLabel);
 
         account = new QLineEdit(Log);
         account->setObjectName(QStringLiteral("account"));
+        account->setMinimumSize(QSize(160, 22));
+        account->setStyleSheet(QLatin1String("background-image: url(:/log/Icon/nobackground.jpg);\n"
+"border-radius:4px;\n"
+""));
 
         accountLayout->addWidget(account);
 
-        horizontalSpacer_2 = new QSpacerItem(5, 10, QSizePolicy::Expanding, QSizePolicy::Minimum);
+        horizontalSpacer_2 = new QSpacerItem(95, 10, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         accountLayout->addItem(horizontalSpacer_2);
 
@@ -101,16 +104,22 @@ public:
 
         passwordLabel = new QLabel(Log);
         passwordLabel->setObjectName(QStringLiteral("passwordLabel"));
+        passwordLabel->setStyleSheet(QString::fromUtf8("background: transparent; \n"
+"font: 10pt \"\351\273\221\344\275\223\";"));
 
         passwordLayout->addWidget(passwordLabel);
 
         password = new QLineEdit(Log);
         password->setObjectName(QStringLiteral("password"));
+        password->setMinimumSize(QSize(160, 22));
         password->setSizeIncrement(QSize(10, 10));
+        password->setStyleSheet(QLatin1String("background-color: rgb(255, 255, 255);\n"
+"background-image: url(:/log/Icon/nobackground.jpg);\n"
+"border-radius:4px;"));
 
         passwordLayout->addWidget(password);
 
-        horizontalSpacer_4 = new QSpacerItem(5, 10, QSizePolicy::Expanding, QSizePolicy::Minimum);
+        horizontalSpacer_4 = new QSpacerItem(95, 10, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         passwordLayout->addItem(horizontalSpacer_4);
 
@@ -129,6 +138,7 @@ public:
 
         login = new QPushButton(Log);
         login->setObjectName(QStringLiteral("login"));
+        login->setStyleSheet(QString::fromUtf8("font: 10pt \"\351\273\221\344\275\223\";"));
         login->setIconSize(QSize(20, 50));
         login->setAutoRepeat(false);
         login->setAutoExclusive(false);
@@ -142,12 +152,14 @@ public:
 
         verticalLayout->addLayout(horizontalLayout);
 
-        verticalSpacer_3 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        verticalSpacer_3 = new QSpacerItem(20, 100, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         verticalLayout->addItem(verticalSpacer_3);
 
         toLogon = new QCommandLinkButton(Log);
         toLogon->setObjectName(QStringLiteral("toLogon"));
+        toLogon->setStyleSheet(QString::fromUtf8("background: transparent; \n"
+"font: 10pt \"\351\273\221\344\275\223\";"));
 
         verticalLayout->addWidget(toLogon);
 

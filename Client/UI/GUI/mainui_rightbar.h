@@ -6,14 +6,19 @@
 #include <QLabel>
 #include <QTextEdit>
 #include <QToolBar>
+#include <QMenuBar>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QPalette>
+#include <QScrollBar>
+#include <QScrollArea>
 #include "signalopt.h"
 #include "global.h"
 #include "mytoolbutton.h"
 #include "qinputdialog.h"
 #include "jsonoperator.h"
 #include "fileserver.h"
+#include "textrecord.h"
 
 class MainUI_RightBar : public QWidget
 {
@@ -23,6 +28,7 @@ public:
     void openChatWindow(MyToolButton *);
     void inviteFriend();
     void flashTextRecord();
+    void initTextScrollBar();
 
 public slots:
     void resizeEvent(QResizeEvent *);
@@ -30,6 +36,12 @@ public slots:
     void openGroupMemberList();
     void openFirstGroupMemberList();
     void sendFile();
+    void sendEmoji(QString index);
+    void sendDaku();
+    void sendHaixiu();
+    void sendWeixiao();
+    void sendQi();
+    void sendZhuangsha();
 private:
     QString type;
     QString id;
@@ -46,10 +58,10 @@ private:
     QPushButton * groupMemberListPbn;
     QString groupID;
 
-    QWidget * textRecord;
-    QVBoxLayout * textRecordLayout;
+    TextRecord * textRecord;
+    QScrollArea * textScrollArea;
 
-    QToolBar * toolBar;
+    QMenuBar * menuBar;
     QTextEdit * textEdit;
     QPushButton * clearTextPbn;
     QPushButton * sendTextPbn;

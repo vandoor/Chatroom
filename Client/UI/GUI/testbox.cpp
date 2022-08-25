@@ -54,6 +54,7 @@ TestBox::TestBox(QWidget *parent) :
         signalOpt->vertifyFriendSuccessfully(vertifyFriendID,vertifyFriendName);
     });
     connect(ui->askFriend,&QPushButton::clicked,this,[=](){
+        qDebug()<<"askFriend";
         QString askFriendFriendID = ui->askFriendID->text();
         QString askFriendName = ui->askFriendName->text();
         signalOpt->askFriend(askFriendFriendID,askFriendName);
@@ -79,7 +80,7 @@ TestBox::TestBox(QWidget *parent) :
     });
     connect(ui->createGroupSuccessfully,&QPushButton::clicked,this,[=](){
        QString createGroupID = ui->createGroupID->text();
-       signalOpt->createGroupSuccessfully(createGroupID);
+       signalOpt->createGroupSuccessfully(createGroupID,"");
     });
     connect(ui->noSuchGroupID,&QPushButton::clicked,this,[=](){
         QString groupID = ui->noGroupID->text();

@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>381</width>
-    <height>267</height>
+    <width>396</width>
+    <height>375</height>
    </rect>
   </property>
   <property name="cursor">
@@ -18,6 +18,9 @@
   </property>
   <property name="windowTitle">
    <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-image: url(:/log/Icon/logbackgroud1.jpg);</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -28,7 +31,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>60</height>
+       <height>120</height>
       </size>
      </property>
     </spacer>
@@ -50,13 +53,29 @@
      </item>
      <item>
       <widget class="QLabel" name="accountLabel">
+       <property name="styleSheet">
+        <string notr="true">background: transparent; 
+font: 10pt &quot;黑体&quot;;</string>
+       </property>
        <property name="text">
         <string> 用户名 </string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="uname"/>
+      <widget class="QLineEdit" name="uname">
+       <property name="minimumSize">
+        <size>
+         <width>160</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-image: url(:/log/Icon/nobackground.jpg);
+border-radius:4px;
+</string>
+       </property>
+      </widget>
      </item>
      <item>
       <spacer name="horizontalSpacer_2">
@@ -65,7 +84,7 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>5</width>
+         <width>95</width>
          <height>10</height>
         </size>
        </property>
@@ -103,13 +122,28 @@
      </item>
      <item>
       <widget class="QLabel" name="accountLabel_2">
+       <property name="styleSheet">
+        <string notr="true">background: transparent; 
+font: 10pt &quot;黑体&quot;;</string>
+       </property>
        <property name="text">
         <string> 密  码 </string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="password1"/>
+      <widget class="QLineEdit" name="password1">
+       <property name="minimumSize">
+        <size>
+         <width>160</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-image: url(:/log/Icon/nobackground.jpg);
+border-radius:4px;</string>
+       </property>
+      </widget>
      </item>
      <item>
       <spacer name="horizontalSpacer_8">
@@ -118,7 +152,7 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>5</width>
+         <width>95</width>
          <height>10</height>
         </size>
        </property>
@@ -156,6 +190,10 @@
      </item>
      <item>
       <widget class="QLabel" name="passwordLabel">
+       <property name="styleSheet">
+        <string notr="true">background: transparent; 
+font: 10pt &quot;黑体&quot;;</string>
+       </property>
        <property name="text">
         <string>确认密码</string>
        </property>
@@ -163,11 +201,21 @@
      </item>
      <item>
       <widget class="QLineEdit" name="password2">
+       <property name="minimumSize">
+        <size>
+         <width>160</width>
+         <height>22</height>
+        </size>
+       </property>
        <property name="sizeIncrement">
         <size>
          <width>10</width>
          <height>10</height>
         </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-image: url(:/log/Icon/nobackground.jpg);
+border-radius:4px;</string>
        </property>
       </widget>
      </item>
@@ -178,7 +226,7 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>5</width>
+         <width>95</width>
          <height>10</height>
         </size>
        </property>
@@ -216,6 +264,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="logon">
+       <property name="styleSheet">
+        <string notr="true">font: 10pt &quot;黑体&quot;;</string>
+       </property>
        <property name="text">
         <string>注册</string>
        </property>
@@ -244,7 +295,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>10</height>
+       <height>100</height>
       </size>
      </property>
     </spacer>
@@ -253,6 +304,10 @@
     <widget class="QCommandLinkButton" name="toLog">
      <property name="cursor">
       <cursorShape>ArrowCursor</cursorShape>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background: transparent; 
+font: 10pt &quot;黑体&quot;;</string>
      </property>
      <property name="text">
       <string>登录</string>

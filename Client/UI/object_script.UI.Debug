@@ -20,6 +20,7 @@ INPUT(
 ./debug\mypushbutton.o
 ./debug\noticeitem.o
 ./debug\fileserver.o
+./debug\textrecord.o
 ./debug\qrc_photo.o
 ./debug\qrc_icon.o
 ./debug\qrc_resource.o
@@ -39,4 +40,5 @@ INPUT(
 ./debug\moc_mypushbutton.o
 ./debug\moc_noticeitem.o
 ./debug\moc_fileserver.o
+./debug\moc_textrecord.o
 );

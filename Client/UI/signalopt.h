@@ -35,6 +35,8 @@ public:
     int sendFilePiece(QString UID, QString friendID, QString fileName, int length, int index, char * data);
     int getGroupMemberList(QString groupID);
     int signalSender(QJsonObject json);
+    int sendFriendEmoji(QString UID,QString friendID,QString note);
+    int sendGroupEmoji(QString UID,QString groupID,QString note);
 
     QString getReceivedSignal();
 
@@ -49,7 +51,7 @@ signals:
     void loginUnsuccessfully();
     void logonSuccessfully(QString UserID);
     void logonUnsuccessfully();
-    void createGroupSuccessfully(QString groupID);
+    void createGroupSuccessfully(QString groupID,QString groupName);
     void createGroupUnsuccessfully();
     void noSuchFriendID(QString friendID);
     void beFriendSuccessfully(QString friendID,QString friendName);
@@ -85,6 +87,9 @@ signals:
     void kickedFromGroup(QString adminID,QString groupID);
     void receiveGroupMemberList(QString groupID,int groupMemberNum,QJsonArray groupMemberList);
     void fileDuanSuccessfully();
+    void receiveFriendEmoji(QString friendID,QString Index);
+    void receiveGroupEmoji(QString groupID,QString senderID,QString Index);
+
 };
 
 #endif // SIGNALOPT_H

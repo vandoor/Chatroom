@@ -41,7 +41,6 @@ MainUI_MidBar::MainUI_MidBar(QWidget *parent) : QWidget(parent)
 
     //好友列表界面
     friendListWgt = new QWidget(this);
-    friendListLayout = new QVBoxLayout(friendListWgt);
     friendListWgt->hide();
 
 
@@ -56,7 +55,6 @@ MainUI_MidBar::MainUI_MidBar(QWidget *parent) : QWidget(parent)
 
     //群列表界面
     groupListWgt = new QWidget(this);
-    groupListLayout = new QVBoxLayout(groupListWgt);
     groupListWgt->hide();
     tmp << ":/midBar/Icon/group.png"
         << ":/midBar/Icon/group2.png"
@@ -98,13 +96,14 @@ MainUI_MidBar::MainUI_MidBar(QWidget *parent) : QWidget(parent)
 
 
     //创建群聊成功
-    connect(signalOpt,&SignalOpt::createGroupSuccessfully,this,[=](QString groupID){
+    connect(signalOpt,&SignalOpt::createGroupSuccessfully,this,[=](QString groupID,QString groupName){
         QString info;
         info.append(tr("分配给您的群聊ID为:"));
         info.append(groupID);
         info.append(tr(",请您记好"));
         QMessageBox::information(nullptr,tr("新建群聊成功"),info,tr("确定"));
-        addNewGroup(groupID,newGroupName);
+        addNewGroup(groupID,groupName);
+
     });
     //邀请好友进群、添加好友时查不到改ID
     connect(signalOpt,&SignalOpt::noSuchFriendID,this,[](QString friendID){
@@ -288,10 +287,10 @@ void MainUI_MidBar::initGroupList(){
             *groupHeadList = global->GroupHeadList;
 
     int n = groupIDList->size();
-    delete groupListWgt;
+    groupListWgt->hide();
     groupListWgt = new QWidget(this);
     groupListWgt->move(0,80);
-    groupListLayout = new QVBoxLayout(groupListWgt);
+    int nowHeight = 5;
     for(int i=0;i<n;i++){
         MyToolButton* toolbtn = new MyToolButton(groupListWgt);
         toolbtn->setIconSize(QSize(40,40));
@@ -302,9 +301,10 @@ void MainUI_MidBar::initGroupList(){
         toolbtn->setType("group");
         toolbtn->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         connect(toolbtn,&QToolButton::clicked,this,&MainUI_MidBar::openConversation);
-        groupListLayout->addWidget(toolbtn);
+        toolbtn->adjustSize();
+        toolbtn->move(0,nowHeight);
+        nowHeight+=toolbtn->height()+5;
     }
-    groupListLayout->addStretch();
     recentConversation->hide();
     friendListWgt->hide();
     groupListWgt->show();
@@ -316,10 +316,10 @@ void MainUI_MidBar::initFriendList(){
             *friendIDList = global->FriendIDList,
             *friendHeadList = global->FriendHeadList;
     int n = friendIDList->size();
-    delete friendListWgt;
+    friendListWgt->hide();
     friendListWgt = new QWidget(this);
     friendListWgt->move(0,80);
-    friendListLayout = new QVBoxLayout(friendListWgt);
+    int nowHeight = 5;
     for(int i=0;i<n;i++){
         MyToolButton* toolbtn = new MyToolButton(friendListWgt);
         toolbtn->setIconSize(QSize(40,40));
@@ -330,10 +330,10 @@ void MainUI_MidBar::initFriendList(){
         toolbtn->setType("friend");
         toolbtn->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         connect(toolbtn,&QToolButton::clicked,this,&MainUI_MidBar::openConversation);
-//        connect(toolbtn,&QToolButton::clicked,this,[](){});
-        friendListLayout->addWidget(toolbtn);
+        toolbtn->adjustSize();
+        toolbtn->move(0,nowHeight);
+        nowHeight+=toolbtn->height()+5;
     }
-    friendListLayout->addStretch();
     recentConversation->hide();
     friendListWgt->show();
     groupListWgt->hide();

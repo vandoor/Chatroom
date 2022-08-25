@@ -1,0 +1,20 @@
+{
+    "GroupList": [
+        {
+            "GroupHead": "grouphead.png",
+            "GroupID": "1204866593",
+            "GroupName": "GA"
+        },
+        {
+            "GroupHead": "grouphead.png",
+            "GroupID": "1128942304",
+            "GroupName": "GB"
+        },
+        {
+            "GroupHead": "grouphead.png",
+            "GroupID": "740054590",
+            "GroupName": "这是一个群"
+        }
+    ],
+    "GroupNum": 3
+}

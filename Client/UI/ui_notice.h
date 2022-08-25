@@ -27,6 +27,7 @@ public:
         if (Notice->objectName().isEmpty())
             Notice->setObjectName(QStringLiteral("Notice"));
         Notice->resize(400, 300);
+        Notice->setStyleSheet(QStringLiteral(""));
 
         retranslateUi(Notice);
 

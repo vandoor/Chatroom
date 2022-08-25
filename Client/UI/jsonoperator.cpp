@@ -63,7 +63,13 @@ void JsonOperator::readFriendList(){
                     QJsonObject friendiInfo = FriendList_value[i].toObject();
                     FriendIDList->append(friendiInfo.value("FriendID").toString());
                     FriendNameList->append(friendiInfo.value("FriendName").toString());
-                    FriendHeadList->append(friendiInfo.value("FriendHead").toString());
+                    int headNote = friendiInfo.value("FriendID").toString().toInt();
+                    headNote = headNote % 3;
+                    QString headNoteChar ;
+                    if(headNote == 0) headNoteChar = "3";
+                    else if(headNote == 1) headNoteChar = "1";
+                    else headNoteChar = "2";
+                    FriendHeadList->append("head"+headNoteChar+".png");
                 }
 
                 qDebug()<<FriendNum<<*(FriendIDList)<<*(FriendNameList)<<*(FriendHeadList);
@@ -99,7 +105,7 @@ void JsonOperator::readGroupList(){
                     QJsonObject GroupiInfo = GroupList_value[i].toObject();
                     GroupIDList->append(GroupiInfo.value("GroupID").toString());
                     GroupNameList->append(GroupiInfo.value("GroupName").toString());
-                    GroupHeadList->append(GroupiInfo.value("GroupHead").toString());
+                    GroupHeadList->append("grouphead.png");
                 }
 
                 qDebug()<<GroupNum<<*(GroupIDList)<<*(GroupNameList)<<*(GroupHeadList);
@@ -136,7 +142,13 @@ void JsonOperator::readGroupMemberList(QString GroupID){
                     QJsonObject GroupMemberiInfo = GroupMemberList_value[i].toObject();
                     GroupMemberIDList->append(GroupMemberiInfo.value("GroupMemberID").toString());
                     GroupMemberNameList->append(GroupMemberiInfo.value("GroupMemberName").toString());
-                    GroupMemberHeadList->append(GroupMemberiInfo.value("GroupMemberHead").toString());
+                    int headNote = GroupMemberiInfo.value("GroupMemberID").toString().toInt();
+                    headNote = headNote % 3;
+                    QString headNoteChar ;
+                    if(headNote == 0) headNoteChar = "3";
+                    else if(headNote == 1) headNoteChar = "1";
+                    else headNoteChar = "2";
+                    GroupMemberHeadList->append("head"+headNoteChar+".png");
                 }
 
                 qDebug()<<GroupMemberNum<<*(GroupMemberIDList)<<*(GroupMemberNameList)<<*(GroupMemberHeadList);
@@ -357,6 +369,19 @@ void JsonOperator::addGrouptoList(QString groupID,QString groupName){
                 if(file.open(QIODevice::WriteOnly|QIODevice::Text)){
                     file.write(document.toJson());
                 }
+
+                //创建群员列表.json文件
+                QFile memberListfile(global->path+"User/"+global->UID+"/GroupList/"+groupID+".json");
+                memberListfile.open(QIODevice::WriteOnly);
+                memberListfile.close();
+                QJsonObject newMemberList;
+                newMemberList.insert("GroupMemberNum",0);
+                newMemberList.insert("GroupMemberList",QJsonValue());
+                memberListfile.open(QIODevice::WriteOnly|QIODevice::Text);
+                QJsonDocument doc = QJsonDocument(newMemberList);
+                memberListfile.write(doc.toJson());
+                memberListfile.close();
+
                 //创建聊天记录.json文件
                 QFile recordfile(global->path+"User/"+global->UID+"/GroupRecord/"+groupID+".json");
                 recordfile.open(QIODevice::WriteOnly);
@@ -365,7 +390,7 @@ void JsonOperator::addGrouptoList(QString groupID,QString groupName){
                 newRecord.insert("RecordNum",0);
                 newRecord.insert("RecordList",QJsonValue());
                 recordfile.open(QIODevice::WriteOnly|QIODevice::Text);
-                QJsonDocument doc = QJsonDocument(newRecord);
+                doc = QJsonDocument(newRecord);
                 recordfile.write(doc.toJson());
                 recordfile.close();
             }
@@ -410,7 +435,7 @@ void JsonOperator::addGroupMembertoList(QString GroupID,QString groupMemberID,QS
 
 }
 
-void JsonOperator::addFriendRecord(QString friendID,int type,QString context){
+void JsonOperator::addFriendRecord(int note,QString friendID,int type,QString context){
     qDebug()<<"addFriendRecord";
     QFile recordfile(global->path+"User/"+global->UID+"/FriendRecord/"+friendID+".json");
     if(!recordfile.exists()){
@@ -433,7 +458,7 @@ void JsonOperator::addFriendRecord(QString friendID,int type,QString context){
             QDateTime dateTime = QDateTime::currentDateTime();
             QString time = dateTime.toString("yyyyMMddhhmmss");
             QJsonObject newRecord;
-            newRecord.insert("Note",RecordNum);
+            newRecord.insert("Note",note);
             //type为1表示对方发的，0表示自己发的
             if(type) newRecord.insert("UID",friendID);
             else newRecord.insert("UID",global->UID);
@@ -453,7 +478,7 @@ void JsonOperator::addFriendRecord(QString friendID,int type,QString context){
     }
 }
 
-void JsonOperator::addGroupRecord(QString groupID,QString groupMemberID,QString context){
+void JsonOperator::addGroupRecord(int note,QString groupID,QString groupMemberID,QString context){
     qDebug()<<"addGroupRecord";
     QFile recordfile(global->path+"User/"+global->UID+"/GroupRecord/"+groupID+".json");
     if(!recordfile.exists()){
@@ -476,7 +501,7 @@ void JsonOperator::addGroupRecord(QString groupID,QString groupMemberID,QString 
             QDateTime dateTime = QDateTime::currentDateTime();
             QString time = dateTime.toString("yyyyMMddhhmmss");
             QJsonObject newRecord;
-            newRecord.insert("Note",RecordNum);
+            newRecord.insert("Note",note);
             //type为1表示对方发的，0表示自己发的
             newRecord.insert("UID",groupMemberID);
             newRecord.insert("Text",context);
@@ -760,7 +785,13 @@ void JsonOperator::initUserData(QString UserID,QString UserName){
     QJsonObject object;
     object.insert("UserID",UserID);
     object.insert("UserName",UserName);
-    object.insert("UserHead","9999.jpg");
+    int headNote = UserID.toInt();
+    headNote = headNote % 3;
+    QString headNoteChar ;
+    if(headNote == 0) headNoteChar = "3";
+    else if(headNote == 1) headNoteChar = "1";
+    else headNoteChar = "2";
+    object.insert("UserHead","head"+headNoteChar+".png");
     QJsonDocument doc = QJsonDocument(object);
     UserInfofile.open(QIODevice::WriteOnly|QIODevice::Text);
     UserInfofile.close();

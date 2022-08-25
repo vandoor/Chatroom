@@ -5,7 +5,7 @@ SignalOpt::SignalOpt(QWidget *parent) : QWidget(parent)
 {
     client = new QTcpSocket(nullptr);
     //在这里修改地址
-    client->connectToHost(QHostAddress("192.168.2.3"),8848);
+    client->connectToHost(QHostAddress("192.168.2.18"),8848);
     connect(client,&QTcpSocket::readyRead,this,&SignalOpt::signalReceiver);
 }
 
@@ -258,6 +258,34 @@ int SignalOpt::getGroupMemberList(QString groupID){
     return val;
 }
 
+int SignalOpt::sendFriendEmoji(QString UID, QString friendID, QString index){
+    QJsonObject json;
+    json.insert("type","sendfriendemoji");
+    json.insert("UserID",UID);
+    json.insert("FriendID",friendID);
+    json.insert("Index",index);
+    int val = signalSender(json);
+    if(val==-1){
+        qDebug()<<"sendFriendEmoji error";
+        return -1;
+    }
+    return val;
+}
+
+
+int SignalOpt::sendGroupEmoji(QString UID, QString groupID, QString index){
+    QJsonObject json;
+    json.insert("type","sendgroupemoji");
+    json.insert("UserID",UID);
+    json.insert("GroupID",groupID);
+    json.insert("Index",index);
+    int val = signalSender(json);
+    if(val==-1){
+        qDebug()<<"sendGroupEmoji error";
+        return -1;
+    }
+    return val;
+}
 int SignalOpt::signalSender(QJsonObject json){
     //打包发送给服务器的信号
     QJsonDocument json_doc;
@@ -312,9 +340,11 @@ void SignalOpt::signalReceiver(){
                 int status = status_value.toInt();
                 QJsonValue groupID_value = object.value("GroupID"); //<-- 键名更改 -->
                 QString groupID = groupID_value.toString();
+                QJsonValue groupName_value = object.value("GroupName");
+                QString groupName = groupName_value.toString();
                 if(status == 1){
                     //建群成功
-                    emit createGroupSuccessfully(groupID);
+                    emit createGroupSuccessfully(groupID,groupName);
                 }
                 else emit createGroupUnsuccessfully();
             }
@@ -630,6 +660,23 @@ void SignalOpt::signalReceiver(){
                 QJsonValue MemberList_value = object.value("MemberList");
                 QJsonArray memberList =MemberList_value.toArray();
                 emit receiveGroupMemberList(GroupID,memberCount,memberList);
+            }
+            else if(type == "receivefriendemoji"){
+                QJsonValue SenderID_value = object.value("SenderID");
+                QString SenderID = SenderID_value.toString();
+                QJsonValue Index_value = object.value("Index");
+                QString Index = Index_value.toString();
+                emit receiveFriendEmoji(SenderID,Index);
+
+            }
+            else if(type == "receivegroupemoji"){
+                QJsonValue SenderID_value = object.value("SenderID");
+                QString SenderID = SenderID_value.toString();
+                QJsonValue GroupID_value = object.value("GroupID");
+                QString GroupID = GroupID_value.toString();
+                QJsonValue Index_value = object.value("Index");
+                QString Index = Index_value.toString();
+                emit receiveGroupEmoji(GroupID,SenderID,Index);
             }
             else if(type == "1"){
                 emit fileDuanSuccessfully();

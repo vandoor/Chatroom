@@ -45,7 +45,8 @@ SOURCES += \
     jsonoperator.cpp \
     GUI/mypushbutton.cpp \
     noticeitem.cpp \
-    fileserver.cpp
+    fileserver.cpp \
+    textrecord.cpp
 
 HEADERS += \
         widget.h \
@@ -67,7 +68,8 @@ HEADERS += \
     jsonoperator.h \
     GUI/mypushbutton.h \
     noticeitem.h \
-    fileserver.h
+    fileserver.h \
+    textrecord.h
 
 
 FORMS += \

@@ -6,19 +6,16 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>381</width>
-    <height>267</height>
+    <width>395</width>
+    <height>404</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QListView{
-	font:25 9pt &quot;Microsoft YaHei&quot;;
-	border: 15px soild white;
-	border-radius: 10px;
-}</string>
+   <string notr="true">background-image: url(:/log/Icon/logbackgroud1.jpg);
+</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -29,7 +26,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>60</height>
+       <height>120</height>
       </size>
      </property>
     </spacer>
@@ -51,13 +48,29 @@
      </item>
      <item>
       <widget class="QLabel" name="accountLabel">
+       <property name="styleSheet">
+        <string notr="true">background: transparent; 
+font: 10pt &quot;黑体&quot;;</string>
+       </property>
        <property name="text">
         <string>账号</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="account"/>
+      <widget class="QLineEdit" name="account">
+       <property name="minimumSize">
+        <size>
+         <width>160</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-image: url(:/log/Icon/nobackground.jpg);
+border-radius:4px;
+</string>
+       </property>
+      </widget>
      </item>
      <item>
       <spacer name="horizontalSpacer_2">
@@ -66,7 +79,7 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>5</width>
+         <width>95</width>
          <height>10</height>
         </size>
        </property>
@@ -104,6 +117,10 @@
      </item>
      <item>
       <widget class="QLabel" name="passwordLabel">
+       <property name="styleSheet">
+        <string notr="true">background: transparent; 
+font: 10pt &quot;黑体&quot;;</string>
+       </property>
        <property name="text">
         <string>密码</string>
        </property>
@@ -111,11 +128,22 @@
      </item>
      <item>
       <widget class="QLineEdit" name="password">
+       <property name="minimumSize">
+        <size>
+         <width>160</width>
+         <height>22</height>
+        </size>
+       </property>
        <property name="sizeIncrement">
         <size>
          <width>10</width>
          <height>10</height>
         </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);
+background-image: url(:/log/Icon/nobackground.jpg);
+border-radius:4px;</string>
        </property>
       </widget>
      </item>
@@ -126,7 +154,7 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>5</width>
+         <width>95</width>
          <height>10</height>
         </size>
        </property>
@@ -164,6 +192,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="login">
+       <property name="styleSheet">
+        <string notr="true">font: 10pt &quot;黑体&quot;;</string>
+       </property>
        <property name="text">
         <string>登录</string>
        </property>
@@ -204,13 +235,17 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>40</height>
+       <height>100</height>
       </size>
      </property>
     </spacer>
    </item>
    <item>
     <widget class="QCommandLinkButton" name="toLogon">
+     <property name="styleSheet">
+      <string notr="true">background: transparent; 
+font: 10pt &quot;黑体&quot;;</string>
+     </property>
      <property name="text">
       <string>注册账号</string>
      </property>

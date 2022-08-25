@@ -13,7 +13,11 @@ Widget::Widget(QWidget *parent) :
     global = new Global();
     signalOpt = global->signalOpt;
     log = new Log(nullptr);
+    log->setWindowIcon(QIcon(":/log/Icon/QChat.jpg"));
+    log->setWindowTitle("登录");
     logon = new Logon(nullptr);
+    logon->setWindowIcon(QIcon(":/log/Icon/QChat.jpg"));
+    logon->setWindowTitle("注册");
     testBox = new TestBox(nullptr);
     testBox->setSignalOpt(signalOpt);
 
@@ -26,6 +30,8 @@ Widget::Widget(QWidget *parent) :
         testBox->show();
         mainUI = new MainUI(nullptr);
         mainUI->show();
+        mainUI->setWindowIcon(QIcon(":/log/Icon/QChat.jpg"));
+        mainUI->setWindowTitle("QChat");
     }
     else if(flag==2){
         log->hide();
@@ -64,6 +70,8 @@ Widget::Widget(QWidget *parent) :
         mainUI = new MainUI(nullptr);
         mainUI->show();
         mainUI->setUID(log->getAccount());
+        mainUI->setWindowIcon(QIcon(":/log/Icon/QChat.jpg"));
+        mainUI->setWindowTitle("QChat");
         log->hide();
         //同时当主界面关闭时，所有界面关闭
         connect(mainUI,&QObject::destroyed,this,&Widget::closeAllWidget);
